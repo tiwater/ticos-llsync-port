@@ -98,6 +98,13 @@ typedef struct ble_core_data_ {
     char    identify_str[BLE_BIND_IDENTIFY_STR_LEN];
 } ble_core_data;
 
+typedef struct {
+    uint8_t bind_state;
+    char    local_psk[BLE_LOCAL_PSK_LEN];
+    char    identify_str[BLE_BIND_IDENTIFY_STR_LEN];
+    uint32_t valid_check;
+} ble_core_data_flash;
+
 // write to uuid FEE1 before bind
 typedef struct ble_bind_data_t_ {
     int nonce;

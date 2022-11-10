@@ -33,13 +33,24 @@ extern "C" {
 
 #define BLE_GET_EXPIRATION_TIME(_cur_time) ((_cur_time) + BLE_EXPIRATION_TIME)
 
-static ble_core_data             sg_core_data;                // ble data storage in flash
+static ble_core_data_flash       sg_core_data;                // ble data storage in flash
 static ble_device_info           sg_device_info;              // device info storage in flash
 static e_llsync_bind_state       sg_llsync_bind_state;        // llsync bind state in used
 static e_llsync_connection_state sg_llsync_connection_state;  // llsync connection state in used
 static e_ble_connection_state    sg_ble_connection_state;     // ble connection state in used
 static uint16_t                  sg_llsync_mtu;               // the mtu for llsync slice data
 static uint8_t                   sg_system_type;              // system type in current pairings
+
+#define CORE_DATA_VALID_CHECK      0xdeadbeef
+static void set_core_data_valid(void)
+{
+    sg_core_data.valid_check = CORE_DATA_VALID_CHECK;
+}
+
+static int check_core_data_valid(void)
+{
+    return sg_core_data.valid_check == CORE_DATA_VALID_CHECK;
+}
 
 uint16_t llsync_mtu_get(void)
 {
@@ -278,12 +289,20 @@ int ble_dynreg_parse_psk(const char *in_buf, uint16_t data_len)
 static ble_qiot_ret_status_t ble_write_core_data(ble_core_data *core_data)
 {
     memcpy(&sg_core_data, core_data, sizeof(ble_core_data));
-    if (sizeof(ble_core_data) !=
-        ble_write_flash(BLE_QIOT_RECORD_FLASH_ADDR, (char *)&sg_core_data, sizeof(ble_core_data))) {
+    set_core_data_valid();
+    if (sizeof(sg_core_data) !=
+        ble_write_flash(BLE_QIOT_RECORD_FLASH_ADDR, (char *)&sg_core_data, sizeof(sg_core_data))) {
         ble_qiot_log_e("llsync write core failed");
         return BLE_QIOT_RS_ERR_FLASH;
     }
 
+    return BLE_QIOT_RS_OK;
+}
+
+static ble_qiot_ret_status_t ble_clear_core_data(void)
+{
+    memset(&sg_core_data, 0, sizeof(sg_core_data));
+    ble_write_flash(BLE_QIOT_RECORD_FLASH_ADDR, (char *)&sg_core_data, sizeof(sg_core_data));
     return BLE_QIOT_RS_OK;
 }
 
@@ -353,12 +372,9 @@ ble_qiot_ret_status_t ble_bind_write_result(const char *result, uint16_t len)
 
 ble_qiot_ret_status_t ble_unbind_write_result(void)
 {
-    ble_core_data bind_result;
-
     llsync_connection_state_set(E_LLSYNC_DISCONNECTED);
     llsync_bind_state_set(E_LLSYNC_BIND_IDLE);
-    memset(&bind_result, 0, sizeof(bind_result));
-    return ble_write_core_data(&bind_result);
+    return ble_clear_core_data();
 }
 
 int ble_conn_get_authcode(const char *conn_data, uint16_t data_len, char *out_buf, uint16_t buf_len)
@@ -468,7 +484,7 @@ ble_qiot_ret_status_t ble_init_flash_data(void)
         ble_qiot_log_e("llsync read flash failed");
         return BLE_QIOT_RS_ERR_FLASH;
     }
-    if (0 == memchk((const uint8_t *)&sg_core_data, sizeof(sg_core_data))) {
+    if (!check_core_data_valid()) {
         memset(&sg_core_data, 0, sizeof(sg_core_data));
     }
 
