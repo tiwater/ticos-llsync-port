@@ -42,15 +42,9 @@ enum {
     IDX_CHAR_A,
     IDX_CHAR_VAL_A,
 
-    IDX_CHAR_B,
-    IDX_CHAR_VAL_B,
-
     IDX_CHAR_C,
     IDX_CHAR_VAL_C,
     IDX_CHAR_CFG_C,
-
-    IDX_CHAR_D,
-    IDX_CHAR_VAL_D,
 
     HRS_IDX_NB,
 };
@@ -90,7 +84,7 @@ static uint8_t raw_adv_data[32] = {
     /* service uuid */
     0x03,
     0x03,
-    0xE0,
+    0xF0,
     0xFF,
 };
 
@@ -185,25 +179,19 @@ static const uint16_t primary_service_uuid         = ESP_GATT_UUID_PRI_SERVICE;
 static const uint16_t character_declaration_uuid   = ESP_GATT_UUID_CHAR_DECLARE;
 static const uint16_t character_client_config_uuid = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
 static const uint8_t  char_prop_write              = ESP_GATT_CHAR_PROP_BIT_WRITE;
-static const uint8_t  char_prop_write_no_rsp       = ESP_GATT_CHAR_PROP_BIT_WRITE_NR;
+//static const uint8_t  char_prop_write_no_rsp       = ESP_GATT_CHAR_PROP_BIT_WRITE_NR;
 static const uint8_t  char_prop_notify             = ESP_GATT_CHAR_PROP_BIT_NOTIFY;
 static const uint8_t  heart_measurement_ccc[2]     = {0x00, 0x00};
 
 /* service_uuid and Characteristic_uuid*/
 static uint8_t llsync_service_uuid[16] = {
-    0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xe0, 0xff, 0x00, 0x00,
+    0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xf0, 0xff, 0x00, 0x00,
 };
 static uint8_t llsync_device_info_uuid[16] = {
     0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xe1, 0xff, 0x00, 0x00,
 };
-static uint8_t llsync_data_uuid[16] = {
-    0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xe2, 0xff, 0x00, 0x00,
-};
 static uint8_t llsync_event_uuid[16] = {
     0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xe3, 0xff, 0x00, 0x00,
-};
-static uint8_t llsync_ota_uuid[16] = {
-    0xe2, 0xa4, 0x1b, 0x54, 0x93, 0xe4, 0x6a, 0xb5, 0x20, 0x4e, 0xd0, 0x65, 0xe4, 0xff, 0x00, 0x00,
 };
 
 /* Full Database Description - Used to add attributes into the database */
@@ -223,15 +211,6 @@ static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] = {
                          LLSYNC_CHAR_VAL_LEN_MAX, 0, NULL}},
 
     /* Characteristic Declaration */
-    [IDX_CHAR_B] = {{ESP_GATT_AUTO_RSP},
-                    {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE,
-                     CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_write}},
-    /* Characteristic Value */
-    [IDX_CHAR_VAL_B] = {{ESP_GATT_AUTO_RSP},
-                        {ESP_UUID_LEN_128, (uint8_t *)llsync_data_uuid, ESP_GATT_PERM_WRITE, LLSYNC_CHAR_VAL_LEN_MAX, 0,
-                         NULL}},
-
-    /* Characteristic Declaration */
     [IDX_CHAR_C] = {{ESP_GATT_AUTO_RSP},
                     {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE,
                      CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_notify}},
@@ -243,15 +222,6 @@ static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] = {
                         {ESP_UUID_LEN_16, (uint8_t *)&character_client_config_uuid,
                          ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, sizeof(uint16_t), sizeof(heart_measurement_ccc),
                          (uint8_t *)heart_measurement_ccc}},
-
-    /* Characteristic Declaration */
-    [IDX_CHAR_D] = {{ESP_GATT_AUTO_RSP},
-                    {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE,
-                     CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_write_no_rsp}},
-    /* Characteristic Value */
-    [IDX_CHAR_VAL_D] = {{ESP_GATT_AUTO_RSP},
-                        {ESP_UUID_LEN_128, (uint8_t *)llsync_ota_uuid, ESP_GATT_PERM_WRITE, LLSYNC_CHAR_VAL_LEN_MAX, 0,
-                         NULL}},
 };
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
@@ -345,8 +315,6 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     if (param->exec_write.exec_write_flag == ESP_GATT_PREP_WRITE_EXEC && prepare_write_env->prepare_buf) {
         if (prepare_write_env->handle == llsync_handle_table[IDX_CHAR_VAL_A]) {
             ble_device_info_write_cb(prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
-        } else if (prepare_write_env->handle == llsync_handle_table[IDX_CHAR_VAL_B]) {
-            ble_lldata_write_cb(prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
         }
         //esp_log_buffer_hex(LLSYNC_LOG_TAG, prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
     } else {
@@ -387,10 +355,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                 //esp_log_buffer_hex(LLSYNC_LOG_TAG, param->write.value, param->write.len);
                 if (param->write.handle == llsync_handle_table[IDX_CHAR_VAL_A]) {
                     ble_device_info_write_cb(param->write.value, param->write.len);
-                } else if (param->write.handle == llsync_handle_table[IDX_CHAR_VAL_B]) {
-                    ble_lldata_write_cb(param->write.value, param->write.len);
-                } else if (param->write.handle == llsync_handle_table[IDX_CHAR_VAL_D]) {
-                    ble_ota_write_cb(param->write.value, param->write.len);
                 }
                 /* send response when param->write.need_rsp is true*/
                 if (param->write.need_rsp) {
@@ -493,8 +457,16 @@ void ble_services_add(const qiot_service_init_s *p_service)
     return;
 }
 
-void ble_qiot_service_init(void)
+static bool ble_qiot_init = false;
+void ble_qiot_service_start(void)
 {
+    if (ble_qiot_init) {
+        ble_qiot_advertising_start();
+        return;
+    }
+
+    ble_qiot_init = true;
+
     esp_err_t ret;
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
@@ -544,9 +516,53 @@ void ble_qiot_service_init(void)
         ESP_LOGE(LLSYNC_LOG_TAG, "gatts app register error, error code = %x", ret);
         return;
     }
+    ret = esp_ble_gatt_set_local_mtu(BLE_QIOT_EVENT_BUF_SIZE);
+    if (ret){
+        ESP_LOGE(LLSYNC_LOG_TAG, "set local  MTU failed, error code = %x", ret);
+    }
 
     return;
 }
+
+void ble_qiot_service_stop(void)
+{
+    if (!ble_qiot_init) {
+        return;
+    }
+
+    ble_qiot_init = false;
+    ble_qiot_advertising_stop();
+
+    esp_err_t ret;
+
+    ret = esp_bluedroid_disable();
+
+    if (ret) {
+        ESP_LOGE(LLSYNC_LOG_TAG, "%s enable bluetooth failed: %s", __func__, esp_err_to_name(ret));
+        return;
+    }
+
+    ret = esp_bluedroid_deinit();
+    if (ret) {
+        ESP_LOGE(LLSYNC_LOG_TAG, "%s init bluetooth failed: %s", __func__, esp_err_to_name(ret));
+        return;
+    }
+
+    ret = esp_bt_controller_disable();
+    if (ret) {
+        ESP_LOGE(LLSYNC_LOG_TAG, "%s enable controller failed: %s", __func__, esp_err_to_name(ret));
+        return;
+    }
+
+    ret = esp_bt_controller_deinit();
+    if (ret) {
+        ESP_LOGE(LLSYNC_LOG_TAG, "%s disable controller failed: %s", __func__, esp_err_to_name(ret));
+        return;
+    }
+
+    //ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+}
+
 
 #ifdef __cplusplus
 }

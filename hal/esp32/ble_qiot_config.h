@@ -23,6 +23,8 @@ extern "C" {
 #define BLE_QIOT_SDK_VERSION "1.6.3"  // sdk version
 #define BLE_QIOT_SDK_DEBUG   0        // sdk debug
 
+#define BLE_QIOT_USER_DEVELOPER_VERSION "0.0.1"
+#define BLE_QIOT_RECORD_FLASH_PAGESIZE 4096
 // the device broadcast is controlled by the user, but we provide a mechanism to help the device save more power.
 // if you want broadcast is triggered by something like press a button instead of all the time, and the broadcast
 // stopped automatically in a few minutes if the device is not bind, define BLE_QIOT_BUTTON_BROADCAST is 1 and
@@ -67,9 +69,8 @@ extern "C" {
 // timestamp
 #define BLE_QIOT_LOG_PRINT(...) printf(__VA_ARGS__)
 
-#define BLE_QIOT_LLSYNC_STANDARD    1   // support llsync standard
+#define BLE_QIOT_LLSYNC_STANDARD    0   // support llsync standard
 #if BLE_QIOT_LLSYNC_STANDARD
-    #define BLE_QIOT_RECORD_FLASH_PAGESIZE 4096
     // dynamic register
     #define BLE_QIOT_DYNREG_ENABLE  0
     // some users hope to confirm on the device before the binding, set BLE_QIOT_SECURE_BIND is 1 to enable the secure
@@ -88,7 +89,6 @@ extern "C" {
     // define user develop version, pick from "a-zA-Z0-9.-_" and length limits 1～32 bytes.
     // must be consistent with the firmware version that user write in the iot-explorer console
     // refer https://cloud.tencent.com/document/product/1081/40296
-    #define BLE_QIOT_USER_DEVELOPER_VERSION "0.0.1"
 
     #define BLE_QIOT_SUPPORT_OTA 1  // 1 is support ota, others not
     #if BLE_QIOT_SUPPORT_OTA

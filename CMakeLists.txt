@@ -28,4 +28,4 @@ set(priv_includes src/internal_inc data_template)
 idf_component_register(SRCS "${srcs}"
         INCLUDE_DIRS "${includes}"
         PRIV_INCLUDE_DIRS "${priv_includes}"
-        REQUIRES bt app_update)
+        REQUIRES bt app_update hal_kv_db)
