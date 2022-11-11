@@ -13,10 +13,12 @@
 extern "C" {
 #endif
 
+#include "ble_qiot_export.h"
+
+#if BLE_QIOT_LLSYNC_STANDARD
+
 #include <stdio.h>
 #include <string.h>
-
-#include "ble_qiot_export.h"
 #include "ble_qiot_template.h"
 #include "ble_qiot_param_check.h"
 #include "ble_qiot_common.h"
@@ -561,6 +563,8 @@ int ble_action_user_handle_output_param(uint8_t action_id, uint8_t output_id, ch
         }
     }
 }
+#endif
+
 #endif
 
 #ifdef __cplusplus

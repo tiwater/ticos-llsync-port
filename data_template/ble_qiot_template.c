@@ -12,11 +12,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "ble_qiot_export.h"
+
+#if BLE_QIOT_LLSYNC_STANDARD
+
 #include "ble_qiot_template.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "ble_qiot_export.h"
 #include "ble_qiot_common.h"
 #include "ble_qiot_param_check.h"
 static int ble_property_t_bool_set(const char *data, uint16_t len)
@@ -610,6 +613,8 @@ static uint8_t sg_ble_action_t_action_output_type_array[6] = {
 ble_action_t sg_ble_action_array[1] = {
     {ble_action_handle_t_action_input_cb, ble_action_handle_t_action_output_cb,sg_ble_action_t_action_input_type_array, sg_ble_action_t_action_output_type_array,6,6},
 };
+
+#endif
 
 #ifdef __cplusplus
 }
