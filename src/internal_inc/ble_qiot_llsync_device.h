@@ -16,7 +16,6 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <stdbool.h>
 #include "ble_qiot_common.h"
 #include "ble_qiot_export.h"
 #include "ble_qiot_hmac.h"
@@ -123,7 +122,7 @@ typedef struct ble_unbind_data_t_ {
 } ble_unbind_data;
 
 typedef struct {
-    bool     have_data;  // start received package
+    unsigned char     have_data;  // start received package
     uint8_t  type;       // event type
     uint16_t buf_len;    // the length of data
     char     buf[BLE_QIOT_EVENT_MAX_SIZE];
@@ -145,10 +144,10 @@ void llsync_connection_state_set(e_llsync_connection_state new_state);
 void ble_connection_state_set(e_ble_connection_state new_state);
 
 // get llsync connection state
-bool llsync_is_connected(void);
+unsigned char llsync_is_connected(void);
 
 // get ble connection state
-bool ble_is_connected(void);
+unsigned char ble_is_connected(void);
 
 // get broadcast data
 int ble_get_my_broadcast_data(char *out_buf, int buf_len);

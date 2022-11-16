@@ -15,7 +15,6 @@ extern "C" {
 
 #include "ble_qiot_config.h"
 
-#include <stdbool.h>
 #include <string.h>
 
 #include "ble_qiot_import.h"

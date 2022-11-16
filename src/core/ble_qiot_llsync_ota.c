@@ -16,7 +16,6 @@ extern "C" {
 #include "ble_qiot_config.h"
 
 #if BLE_QIOT_LLSYNC_STANDARD
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,6 +46,7 @@ static uint8_t     sg_ota_download_percent                = 0;    // the percent
 static uint8_t     sg_ota_flag                            = 0;    // ota control info
 static ble_ota_info_record sg_ota_info;                           // the ota info storage in flash if support resuming
 static ble_ota_reply_t     sg_ota_reply_info;                     // record the last reply info
+static ble_ota_read_flash_callback sg_ble_read_flash = ble_read_flash;
 
 #define BLE_QIOT_OTA_FLAG_SET(_BIT)    (sg_ota_flag |= (_BIT));
 #define BLE_QIOT_OTA_FLAG_CLR(_BIT)    (sg_ota_flag &= ~(_BIT));
@@ -121,6 +121,12 @@ static inline ble_qiot_ret_status_t ble_ota_user_valid_cb(void)
     }
     return BLE_QIOT_RS_OK;
 }
+
+void ble_read_flash_reg(ble_ota_read_flash_callback read_cb)
+{
+    sg_ble_read_flash = read_cb;
+}
+
 static inline ble_qiot_ret_status_t ble_ota_write_info(void)
 {
 #if BLE_QIOT_SUPPORT_RESUMING
@@ -177,8 +183,8 @@ static inline void ble_ota_timer_delete(void)
         return;
     }
     if (BLE_QIOT_RS_OK != ble_timer_delete(sg_ota_timer)) {
-        ble_qiot_log_e("ble ota timer delete failed");
-    }
+        ble_qiot_log_e("ble ota timer delete failed");    
+		}
     sg_ota_timer = NULL;
     return;
 }
@@ -309,7 +315,8 @@ ble_qiot_ret_status_t ble_ota_request_handle(const char *in_buf, int buf_len)
     ble_qiot_log_i("request ota, size: %x, crc: %x, version: %s", file_size, file_crc, p);
 
     // check if the ota is allowed
-    ret = ble_ota_is_enable((const char *)p);
+    ret = ble_ota_is_enable((const char *)p, file_size, file_crc);
+
     if (BLE_OTA_ENABLE == ret) {
         reply_flag                      = BLE_QIOT_OTA_ENABLE;
         ota_reply_info.package_nums     = BLE_QIOT_TOTAL_PACKAGES;
@@ -362,7 +369,7 @@ ble_qiot_ret_status_t ble_ota_file_end_handle(void)
                           ? (sg_ota_info.download_file_info.file_size - crc_file_len)
                           : sizeof(sg_ota_data_buf);
         memset(sg_ota_data_buf, 0, sizeof(sg_ota_data_buf));
-        ble_read_flash(ble_ota_download_address_get() + crc_file_len, (char *)sg_ota_data_buf, crc_buf_len);
+        sg_ble_read_flash(ble_ota_download_address_get() + crc_file_len, (char *)sg_ota_data_buf, crc_buf_len);
         crc_file_len += crc_buf_len;
         crc = ble_qiot_crc32(crc, (const uint8_t *)sg_ota_data_buf, crc_buf_len);
         // maybe need task delay

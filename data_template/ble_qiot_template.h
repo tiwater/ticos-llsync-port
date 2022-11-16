@@ -16,7 +16,6 @@ extern "C"{
 #endif
 
 #include <stdint.h>
-#include <stdbool.h>
 
 // data type in template, corresponding to type in json file
 enum {
@@ -133,7 +132,7 @@ enum {
 };
 
 typedef struct{
-  bool m_s_bool;
+  unsigned char m_s_bool;
   int32_t m_s_int;
   char m_s_str[2048];
   float m_s_float;
@@ -148,7 +147,7 @@ enum {
 };
 
 typedef struct{
-  bool m_s_bool;
+  unsigned char m_s_bool;
 }struct_property_t_struct2;
 
 // define t_int_array attributes
@@ -213,7 +212,7 @@ enum {
 };
 
 typedef struct{
-  bool m_t_bool;
+  unsigned char m_t_bool;
   int32_t m_t_int;
   char m_t_str[32];
   float m_t_float;
