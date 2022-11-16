@@ -10,14 +10,14 @@
  *
  */
 
-#ifndef TENCENTCLOUD_IOT_EXPLORER_BLE_SDK_EMBEDDED_CONFIG_BLE_QIOT_CONFIG_H_
-#define TENCENTCLOUD_IOT_EXPLORER_BLE_SDK_EMBEDDED_CONFIG_BLE_QIOT_CONFIG_H_
+#ifndef _BLE_QIOT_CONFIG_H_
+#define _BLE_QIOT_CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdio.h>
+#include <printf.h>
 #include <stdint.h>
 
 #define BLE_QIOT_SDK_VERSION "1.6.3"  // sdk version
@@ -39,9 +39,9 @@ extern "C" {
 
 // the following definition will affect the stack that LLSync used，the minimum value tested is 2048 bytes
 // the max length of llsync event data, depends on the length of user data reported to Tencent Lianlian at a time
-#define BLE_QIOT_EVENT_MAX_SIZE (128)
+#define BLE_QIOT_EVENT_MAX_SIZE (2048)
 // the minimum between BLE_QIOT_EVENT_MAX_SIZE and mtu
-#define BLE_QIOT_EVENT_BUF_SIZE (23)
+#define BLE_QIOT_EVENT_BUF_SIZE (150)
 
 // some data like integer need to be transmitted in a certain byte order, defined it according to your device
 #define __ORDER_LITTLE_ENDIAN__ 1234
@@ -51,12 +51,12 @@ extern "C" {
 // in some BLE stack ble_qiot_log_hex() maybe not work, user can use there own hexdump function
 #define BLE_QIOT_USER_DEFINE_HEXDUMP 0
 #if BLE_QIOT_USER_DEFINE_HEXDUMP
-    // add your code here like this
-    // #define ble_qiot_log_hex(level, hex_name, data, data_len) \
-    //    do { \
-    //        MY_RAW_LOG("\r\nble qiot dump: %s, length: %d\r\n", hex_name, data_len); \
-    //        MY_RAW_HEXDUMP_(data, data_len); \
-    //    } while(0)
+// add your code here like this
+// #define ble_qiot_log_hex(level, hex_name, data, data_len) \
+//    do { \
+//        MY_RAW_LOG("\r\nble qiot dump: %s, length: %d\r\n", hex_name, data_len); \
+//        MY_RAW_HEXDUMP_(data, data_len); \
+//    } while(0)
 
     // or use your own hexdump function with same definition
     // void ble_qiot_log_hex(e_ble_qiot_log_level level, const char *hex_name, const char *data, uint32_t data_len);
@@ -68,6 +68,7 @@ extern "C" {
 
 #define BLE_QIOT_LLSYNC_STANDARD    1   // support llsync standard
 #if BLE_QIOT_LLSYNC_STANDARD
+    #define BLE_QIOT_RECORD_FLASH_PAGESIZE 4096
     // dynamic register
     #define BLE_QIOT_DYNREG_ENABLE  0
     // some users hope to confirm on the device before the binding, set BLE_QIOT_SECURE_BIND is 1 to enable the secure
@@ -80,32 +81,32 @@ extern "C" {
         #define BLE_QIOT_BIND_WAIT_TIME 60
     #endif  // BLE_QIOT_SECURE_BIND
 
-    // some sdk info needs to stored on the device and the address is up to you
-    #define BLE_QIOT_RECORD_FLASH_ADDR 0x3f000
+// some sdk info needs to stored on the device and the address is up to you
+#define BLE_QIOT_RECORD_FLASH_ADDR 5
 
     // define user develop version, pick from "a-zA-Z0-9.-_" and length limits 1～32 bytes.
     // must be consistent with the firmware version that user write in the iot-explorer console
     // refer https://cloud.tencent.com/document/product/1081/40296
     #define BLE_QIOT_USER_DEVELOPER_VERSION "0.0.1"
 
-    #define BLE_QIOT_SUPPORT_OTA 0  // 1 is support ota, others not
-    #if BLE_QIOT_SUPPORT_OTA
-        #define BLE_QIOT_SUPPORT_RESUMING 1  // 1 is support resuming, others not
-        #if BLE_QIOT_SUPPORT_RESUMING
-            // storage ota info in the flash if support resuming ota file
-            #define BLE_QIOT_OTA_INFO_FLASH_ADDR (BLE_QIOT_RECORD_FLASH_ADDR + 0x1000)
-        #endif  // BLE_QIOT_SUPPORT_RESUMING
+#define BLE_QIOT_SUPPORT_OTA 1  // 1 is support ota, others not
+#if BLE_QIOT_SUPPORT_OTA
+#define BLE_QIOT_SUPPORT_RESUMING 0  // 1 is support resuming, others not
+#if BLE_QIOT_SUPPORT_RESUMING
+// storage ota info in the flash if support resuming ota file
+#define BLE_QIOT_OTA_INFO_FLASH_ADDR 10
+#endif //BLE_QIOT_SUPPORT_RESUMING
 
-        #define BLE_QIOT_TOTAL_PACKAGES 0xFF  // the total package numbers in a loop
-        #define BLE_QIOT_PACKAGE_LENGTH 0x10  // the user data length in package, MAX: ble_get_user_data_mtu_size() - 6
-        #define BLE_QIOT_RETRY_TIMEOUT  0x5   // the max interval between two packages, unit: second
+        #define BLE_QIOT_TOTAL_PACKAGES 0x12  // the total package numbers in a loop
+        #define BLE_QIOT_PACKAGE_LENGTH 0xb0  // the user data length in package, MAX: ble_get_user_data_mtu_size() - 6
+        #define BLE_QIOT_RETRY_TIMEOUT  0x20   // the max interval between two packages, unit: second
         // the time spent for device reboot, the server waiting the device version reported after upgrade. unit: second
         #define BLE_QIOT_REBOOT_TIME      20
-        #define BLE_QIOT_PACKAGE_INTERVAL 0x05  // the interval between two packages send by the server
+        #define BLE_QIOT_PACKAGE_INTERVAL 0xa  // the interval between two packages send by the server
         // the package from the server will storage in the buffer, write the buffer to the flash at one time when the
         // buffer overflow. reduce the flash write can speed up file download, we suggest the BLE_QIOT_OTA_BUF_SIZE is
         // multiples of BLE_QIOT_PACKAGE_LENGTH and equal flash page size
-        #define BLE_QIOT_OTA_BUF_SIZE (4096)
+        #define BLE_QIOT_OTA_BUF_SIZE (512 * 4)
     #endif  // BLE_QIOT_SUPPORT_OTA
 #endif  // BLE_QIOT_LLSYNC_STANDARD
 
@@ -119,4 +120,4 @@ extern "C" {
 }
 #endif
 
-#endif  // TENCENTCLOUD_IOT_EXPLORER_BLE_SDK_EMBEDDED_CONFIG_BLE_QIOT_CONFIG_H_
+#endif  // _BLE_QIOT_CONFIG_H_

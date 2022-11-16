@@ -120,7 +120,7 @@ ble_qiot_ret_status_t ble_event_notify2(uint8_t type, uint8_t length_flag, uint8
             send_len = send_buf_index;
         }
 
-        ble_qiot_log_hex(BLE_QIOT_LOG_LEVEL_INFO, "post data", (char *)send_buf, send_len);
+        //ble_qiot_log_hex(BLE_QIOT_LOG_LEVEL_INFO, "post data", (char *)send_buf, send_len);
         if (0 != ble_send_notify(send_buf, send_len)) {
             ble_qiot_log_e("event(type: %d) post failed, len: %d", type, send_len);
             return BLE_QIOT_RS_ERR;

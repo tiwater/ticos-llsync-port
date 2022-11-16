@@ -206,7 +206,7 @@ enum {
  * @return BLE_OTA_ENABLE is enable, others disable
  * @note can not be blocking, the reason defined by users
  */
-uint8_t ble_ota_is_enable(const char *version);
+uint8_t ble_ota_is_enable(const char *version, uint32_t file_size, uint32_t file_crc);
 
 /**
  * @brief get the address the ota file will be saved

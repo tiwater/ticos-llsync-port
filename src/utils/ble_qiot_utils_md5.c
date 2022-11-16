@@ -27,7 +27,9 @@ extern "C" {
 static void _utils_md5_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
-    while (n--) *p++ = 0;
+    while (n--) {
+        *p++ = 0;
+    }
 }
 
 /*
@@ -249,7 +251,10 @@ void utils_md5_update(iot_md5_context *ctx, const unsigned char *input, unsigned
     }
 }
 
-static const unsigned char iot_md5_padding[64] = {0x80, 0};
+static const unsigned char iot_md5_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                  0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                  0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                                 };
 
 /*
  * MD5 final digest

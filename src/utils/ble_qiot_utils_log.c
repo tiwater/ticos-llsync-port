@@ -16,7 +16,7 @@ extern "C" {
 #include "ble_qiot_log.h"
 
 #include <stdint.h>
-#include <stdio.h>
+#include <printf.h>
 #include <string.h>
 
 #define HEX_DUMP_BYTE_PER_LINE 16

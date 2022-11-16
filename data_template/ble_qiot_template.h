@@ -16,7 +16,8 @@ extern "C"{
 #endif
 
 #include <stdint.h>
-#include <stdbool.h>
+#include "cpu.h"
+//#include <stdbool.h>
 
 // data type in template, corresponding to type in json file
 enum {
@@ -262,7 +263,7 @@ typedef int (*property_array_set_cb)(const char *data, uint16_t len, uint16_t in
 typedef int (*property_array_get_cb)(char *buf, uint16_t buf_len, uint16_t index);
 
 
-#define	BLE_QIOT_INCLUDE_EVENT
+//#define	BLE_QIOT_INCLUDE_EVENT
 
 // define event id
 enum {
@@ -317,7 +318,7 @@ typedef struct{
 }ble_event_t;
 
 
-#define	BLE_QIOT_INCLUDE_ACTION
+//#define	BLE_QIOT_INCLUDE_ACTION
 
 // define action id
 enum {

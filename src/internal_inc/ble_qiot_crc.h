@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
+#include <printf.h>
 #include <stdint.h>
 
 uint32_t ble_qiot_crc32(uint32_t crc, const uint8_t *buf, int len);
