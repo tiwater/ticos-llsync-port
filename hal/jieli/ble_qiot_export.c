@@ -349,18 +349,28 @@ int llsync_app_send_user_data_do(void *priv, u8 *data, u16 len)
     return ble_comm_att_send_data(llsync_con_handle, ATT_CHARACTERISTIC_0000FFE3_65D0_4E20_B56A_E493541BA4E2_01_VALUE_HANDLE, data, len, ATT_OP_AUTO_READ_CCC);
 }
 
+extern void ble_ota_start_cb(void);
+extern void ble_ota_stop_cb(uint8_t result);
+extern ble_qiot_ret_status_t ble_ota_valid_file_cb(uint32_t file_size, char *file_version);
+
 void llsync_func_register()
 {
     llsync_ble_module_enable_register(ble_module_enable);
     llsync_send_data_register(llsync_app_send_user_data_do);
     app_set_adv_data_register(app_set_adv_data);
     app_set_rsp_data_register(app_set_rsp_data);
+    ble_ota_callback_reg(ble_ota_start_cb, ble_ota_stop_cb, ble_ota_valid_file_cb);
 }
 
 void bt_ble_before_start_init(void)
 {
     log_info("%s", __FUNCTION__);
     ble_comm_init(&llsync_gatt_control_block);
+}
+
+void ll_sync_init()
+{
+    ble_qiot_explorer_init();
 }
 
 void tecent_ll_init()

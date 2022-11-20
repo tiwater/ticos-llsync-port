@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#include <printf.h>
+#include <stdio.h>
 
 #include "ble_qiot_config.h"
 
@@ -214,7 +214,7 @@ ble_qiot_ret_status_t ble_qiot_explorer_init(void)
     ble_qiot_set_log_level(BLE_QIOT_LOG_LEVEL_INFO);
 
     service_info = ble_get_qiot_services();
-    //ble_services_add(service_info);
+    ble_services_add(service_info);
 
     ret_code = ble_init_flash_data();
     if (ret_code != BLE_QIOT_RS_OK) {
@@ -222,17 +222,9 @@ ble_qiot_ret_status_t ble_qiot_explorer_init(void)
         return ret_code;
     }
 
-    //sg_ble_qiot_dev_start_cb = ble_qiot_dev_start;
+    sg_ble_qiot_dev_start_cb = ble_qiot_dev_start;
 
     return ret_code;
-}
-
-void ll_sync_init()
-{
-    ble_qiot_explorer_init();
-#if BLE_QIOT_SUPPORT_OTA && OTA_TWS_SAME_TIME_ENABLE
-    tws_sync_update_crc_handler_register(ble_qiot_crc32_init,  ble_qiot_crc32);
-#endif
 }
 
 void ble_device_info_write_cb(const uint8_t *buf, uint16_t len)
@@ -661,7 +653,7 @@ int ble_ota_msg_handle(const char *buf, uint16_t len)
         }
     }
 
-    ble_qiot_log_hex(BLE_QIOT_LOG_LEVEL_INFO, "tlv", p_data, p_data_len);
+    // ble_qiot_log_hex(BLE_QIOT_LOG_LEVEL_INFO, "tlv", p_data, p_data_len);
     switch (data_type) {
         case BLE_QIOT_OTA_MSG_REQUEST:
             ret = ble_ota_request_handle(p_data + 3, p_data_len);

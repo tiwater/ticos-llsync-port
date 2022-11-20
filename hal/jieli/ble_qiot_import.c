@@ -3,6 +3,11 @@
 #include "vm.h"
 #include "le_common.h"
 #include "dual_bank_updata_api.h"
+#include "dual_bank_updata_api.h"
+#include "timer.h"
+#include "os/os_api.h"
+#include "update_loader_download.h"
+#include "app_config.h"
 
 #define PRODUCT_ID "AG8WUO8LEE"
 #define DEVICE_NAME "ble_device_03"
@@ -186,6 +191,42 @@ uint16_t ble_get_user_data_mtu_size(e_system type)
     return BLE_QIOT_PACKAGE_LENGTH + 6;
 }
 
+
+static OS_SEM      sg_ota_sem;
+static void ble_ota_reboot_timer(void *priv)
+{
+    cpu_reset();
+}
+
+static int ble_ota_write_boot_info_callback(int err)
+{
+    if (err == 0) {
+        sys_timeout_add(NULL, ble_ota_reboot_timer, 500);
+    }
+}
+
+void ble_ota_start_cb(void)
+{
+    os_sem_create(&sg_ota_sem, 0);
+}
+
+void ble_ota_stop_cb(uint8_t result)
+{
+    if (BLE_QIOT_OTA_ERR_TIMEOUT == result){
+        ble_ota_stop();
+        dual_bank_passive_update_exit(NULL);
+    }else if (BLE_QIOT_OTA_SUCCESS == result){
+        dual_bank_update_burn_boot_info(ble_ota_write_boot_info_callback);
+    }
+
+}
+
+ble_qiot_ret_status_t ble_ota_valid_file_cb(uint32_t file_size, char *file_version)
+{
+    dual_bank_update_burn_boot_info(ble_ota_write_boot_info_callback);
+}
+
+
 uint8_t ble_ota_is_enable(const char *version, u32 file_size, u32 file_crc)
 {
     log_info("ota version: %s, enable ota", version);
@@ -196,6 +237,77 @@ uint8_t ble_ota_is_enable(const char *version, u32 file_size, u32 file_crc)
     }
     dual_bank_passive_update_exit(NULL);
     return 0;
+}
+
+uint32_t ble_ota_get_download_addr(void)
+{
+    return 0;
+}
+
+static int ble_ota_write_end_callback(void *priv)
+{
+    os_sem_post(&sg_ota_sem);
+    return 0;
+}
+
+int ble_ota_write_flash(uint32_t flash_addr, const char *write_buf, uint16_t write_len)
+{
+    dual_bank_update_write((const char *)write_buf, write_len, ble_ota_write_end_callback);
+    os_sem_pend(&sg_ota_sem, 0);
+}
+
+typedef struct ble_esp32_timer_id_ {
+    uint8_t       type;
+    ble_timer_cb  handle;
+    int timer;
+} ble_esp32_timer_id;
+
+ble_timer_t ble_timer_create(uint8_t type, ble_timer_cb timeout_handle)
+{
+    ble_esp32_timer_id *p_timer = malloc(sizeof(ble_esp32_timer_id));
+    if (NULL == p_timer) {
+        return NULL;
+    }
+
+    p_timer->type   = type;
+    p_timer->handle = timeout_handle;
+    p_timer->timer  = NULL;
+
+    return (ble_timer_t)p_timer;
+}
+
+ble_qiot_ret_status_t ble_timer_start(ble_timer_t timer_id, uint32_t period)
+{
+    ble_esp32_timer_id *p_timer = (ble_esp32_timer_id *)timer_id;
+    sys_timer_add(NULL, p_timer->handle, period);
+
+    return BLE_QIOT_RS_OK;
+}
+
+ble_qiot_ret_status_t ble_timer_stop(ble_timer_t timer_id)
+{
+    ble_esp32_timer_id *p_timer = (ble_esp32_timer_id *)timer_id;
+    //xTimerStop(p_timer->timer, portMAX_DELAY);
+
+    return BLE_QIOT_RS_OK;
+}
+
+ble_qiot_ret_status_t ble_timer_delete(ble_timer_t timer_id)
+{
+    ble_esp32_timer_id *p_timer = (ble_esp32_timer_id *)timer_id;
+    sys_timer_del(p_timer->timer);
+    free(p_timer);
+
+    return BLE_QIOT_RS_OK;
+}
+void ble_qiot_dev_start(void)
+{
+
+}
+void ble_services_add(const qiot_service_init_s *p_service)
+{
+    // do nothing
+    return;
 }
 
 extern s32 vm_open(u16 index);
