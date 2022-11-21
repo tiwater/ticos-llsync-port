@@ -199,7 +199,7 @@ int ble_ota_write_flash(uint32_t flash_addr, const char *write_buf, uint16_t wri
 
 #define TAG     "netconfig"
 
-static void ble_report_wificonn_state(BLE_WIFI_STATE state)
+void ble_report_wificonn_state(BLE_WIFI_STATE state)
 {
     wifi_config_t cfg;
     esp_wifi_get_config(WIFI_IF_STA, &cfg);
@@ -208,34 +208,8 @@ static void ble_report_wificonn_state(BLE_WIFI_STATE state)
                                   (const char *)cfg.sta.ssid);
 }
 
-#define WIFI_CONNECT_MAXIMUM_RETRY      10
-static int s_retry_num = 0;
-static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (s_retry_num < WIFI_CONNECT_MAXIMUM_RETRY) {
-            esp_wifi_connect();
-            s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
-        } else {
-            ble_report_wificonn_state(BLE_WIFI_STATE_OTHER);
-        }
-        ESP_LOGI(TAG,"connect to the AP fail");
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        s_retry_num = 0;
-        ble_report_wificonn_state(BLE_WIFI_STATE_CONNECT);
-    }
-}
-
-static esp_event_handler_instance_t instance_got_ip = NULL;
 ble_qiot_ret_status_t ble_combo_wifi_mode_set(BLE_WIFI_MODE mode)
 {
-    if (!instance_got_ip)
-        esp_event_handler_instance_register(IP_EVENT,
-                                            IP_EVENT_STA_GOT_IP,
-                                            &event_handler,
-                                            NULL,
-                                            &instance_got_ip);
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     return ble_event_report_wifi_mode(0);
 }
@@ -267,7 +241,6 @@ ble_qiot_ret_status_t ble_combo_wifi_info_set(const char *ssid, uint8_t ssid_len
 ble_qiot_ret_status_t ble_combo_wifi_connect()
 {
     ESP_LOGI(TAG, "wifi connect");
-    s_retry_num = 0;
     ESP_ERROR_CHECK(esp_wifi_connect());
     return 0;
 }
@@ -284,6 +257,11 @@ ble_qiot_ret_status_t ble_combo_wifi_token_set(const char *token, uint16_t token
 int llsync_token_get(char *buf, int len)
 {
     return hal_kv_get(LLSYNC_TOKEN, buf, len);
+}
+
+int llsync_token_clear(void)
+{
+    return hal_kv_del(LLSYNC_TOKEN);
 }
 
 ble_qiot_ret_status_t ble_combo_wifi_log_get(void)

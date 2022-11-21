@@ -289,6 +289,41 @@ ble_qiot_ret_status_t ble_event_report_wifi_token(uint8_t result);
  */
 ble_qiot_ret_status_t ble_event_report_wifi_log(const uint8_t *log, uint16_t log_size);
 
+/**
+ * @brief ble serivice start
+ * @note  you should called it before any other sdk api
+ * @return None
+ */
+void ble_qiot_service_start(void);
+
+/**
+ * @brief ble serivice stop
+ * @note  you should called it when you do not use ble service
+ * @return None
+ */
+void ble_qiot_service_stop(void);
+
+/**
+ * @brief get bind token
+ * @param buf buf for token
+ * @param len the lenth of the buf
+ * @return BLE_QIOT_RS_OK is success, other is error
+ */
+int llsync_token_get(char *buf, int len);
+
+/**
+ * @brief clear bind token
+ * @return BLE_QIOT_RS_OK is success, other is error
+ */
+int llsync_token_clear(void);
+
+/**
+ * @brief report wifi connect status
+ * @param state 0 is connected, other failed
+ * @return None
+ */
+void ble_report_wificonn_state(BLE_WIFI_STATE state);
+
 #endif  // BLE_QIOT_LLSYNC_CONFIG_NET
 
 #ifdef __cplusplus
