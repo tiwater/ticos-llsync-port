@@ -16,7 +16,6 @@ extern "C" {
 #include "ble_qiot_config.h"
 
 #if BLE_QIOT_LLSYNC_STANDARD
-//#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 

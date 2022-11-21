@@ -14,7 +14,6 @@ extern "C" {
 #endif
 #include "ble_qiot_template.h"
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
 #include "ble_qiot_export.h"
 #include "ble_qiot_common.h"
