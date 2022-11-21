@@ -352,6 +352,7 @@ int llsync_app_send_user_data_do(void *priv, u8 *data, u16 len)
 extern void ble_ota_start_cb(void);
 extern void ble_ota_stop_cb(uint8_t result);
 extern ble_qiot_ret_status_t ble_ota_valid_file_cb(uint32_t file_size, char *file_version);
+extern void ble_ota_read_flash(uint32_t flash_addr, char * read_buf, uint16_t read_len);
 
 void llsync_func_register()
 {
@@ -360,6 +361,7 @@ void llsync_func_register()
     app_set_adv_data_register(app_set_adv_data);
     app_set_rsp_data_register(app_set_rsp_data);
     ble_ota_callback_reg(ble_ota_start_cb, ble_ota_stop_cb, ble_ota_valid_file_cb);
+    ble_read_flash_reg(ble_ota_read_flash);
 }
 
 void bt_ble_before_start_init(void)

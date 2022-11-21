@@ -47,6 +47,7 @@ static uint8_t     sg_ota_download_percent                = 0;    // the percent
 static uint8_t     sg_ota_flag                            = 0;    // ota control info
 static ble_ota_info_record sg_ota_info;                           // the ota info storage in flash if support resuming
 static ble_ota_reply_t     sg_ota_reply_info;                     // record the last reply info
+static ble_ota_read_flash_callback sg_ble_read_flash = ble_read_flash;
 
 #define BLE_QIOT_OTA_FLAG_SET(_BIT)    (sg_ota_flag |= (_BIT));
 #define BLE_QIOT_OTA_FLAG_CLR(_BIT)    (sg_ota_flag &= ~(_BIT));
@@ -121,6 +122,12 @@ static inline ble_qiot_ret_status_t ble_ota_user_valid_cb(void)
     }
     return BLE_QIOT_RS_OK;
 }
+
+void ble_read_flash_reg(ble_ota_read_flash_callback read_cb)
+{
+    sg_ble_read_flash = read_cb;
+}
+
 static inline ble_qiot_ret_status_t ble_ota_write_info(void)
 {
 #if BLE_QIOT_SUPPORT_RESUMING
@@ -363,7 +370,7 @@ ble_qiot_ret_status_t ble_ota_file_end_handle(void)
                           ? (sg_ota_info.download_file_info.file_size - crc_file_len)
                           : sizeof(sg_ota_data_buf);
         memset(sg_ota_data_buf, 0, sizeof(sg_ota_data_buf));
-        dual_bank_update_read_data(ble_ota_download_address_get() + crc_file_len, (char *)sg_ota_data_buf, crc_buf_len);
+        sg_ble_read_flash(ble_ota_download_address_get() + crc_file_len, (char *)sg_ota_data_buf, crc_buf_len);
         crc_file_len += crc_buf_len;
         crc = ble_qiot_crc32(crc, (const uint8_t *)sg_ota_data_buf, crc_buf_len);
         // maybe need task delay

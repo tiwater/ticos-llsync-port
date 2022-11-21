@@ -226,6 +226,10 @@ ble_qiot_ret_status_t ble_ota_valid_file_cb(uint32_t file_size, char *file_versi
     dual_bank_update_burn_boot_info(ble_ota_write_boot_info_callback);
 }
 
+void ble_ota_read_flash(uint32_t flash_addr, char * read_buf, uint16_t read_len)
+{
+    dual_bank_update_read_data(flash_addr, read_buf, read_len);
+}
 
 uint8_t ble_ota_is_enable(const char *version, u32 file_size, u32 file_crc)
 {

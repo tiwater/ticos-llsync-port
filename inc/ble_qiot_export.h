@@ -213,6 +213,8 @@ ble_qiot_ret_status_t ble_secure_bind_user_confirm(ble_qiot_secure_bind_t choose
 // inform user the ota start
 typedef void (*ble_ota_start_callback)(void);
 
+typedef void (*ble_ota_read_flash_callback)(uint32_t flash_addr, char * read_buf, uint16_t read_len);
+
 enum {
     BLE_QIOT_OTA_SUCCESS     = 0,  // ota success
     BLE_QIOT_OTA_ERR_CRC     = 1,  // ota failed because crc error
