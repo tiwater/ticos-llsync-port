@@ -373,42 +373,42 @@ ble_property_t sg_ble_property_array[12] = {
 };
 
 
-static int ble_event_get_t_event_t_bool_get()
+static uint8_t ble_event_get_t_event_t_bool_get()
 {
 	uint8_t tmp_bool = 1;
 	ble_qiot_log_d("get id t_bool bool value %02x", tmp_bool);
 	return tmp_bool;
 }
 
-static int ble_event_get_t_event_t_int_get()
+static uint32_t ble_event_get_t_event_t_int_get()
 {
 	uint32_t tmp_int = 1;
 	ble_qiot_log_d("get id t_int int value %d", tmp_int);
 	return tmp_int;
 }
 
-static int ble_event_get_t_event_t_str_get()
+static const char *ble_event_get_t_event_t_str_get()
 {
 	const char *tmp_str = "ticos";
 	ble_qiot_log_d("get id t_str string value %s", tmp_str);
 	return tmp_str;
 }
 
-static int ble_event_get_t_event_t_enum_get()
+static uint16_t ble_event_get_t_event_t_enum_get()
 {
 	uint16_t tmp_enum = 0;
 	ble_qiot_log_d("get id t_enum int value %d", tmp_enum);
 	return tmp_enum;
 }
 
-static int ble_event_get_t_event_t_float_get()
+static float ble_event_get_t_event_t_float_get()
 {
 	float tmp_float = 1.23456;
 	ble_qiot_log_d("get id t_float float value %f", tmp_float);
 	return tmp_float;
 }
 
-static int ble_event_get_t_event_t_time_get()
+static uint32_t ble_event_get_t_event_t_time_get()
 {
 	uint32_t tmp_time = 12345678;
 	ble_qiot_log_d("get id t_time time value %d", tmp_time);

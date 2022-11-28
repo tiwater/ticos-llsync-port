@@ -592,7 +592,7 @@ class iot_array(iot_object):
         ctx = ""
         arr_size_macro = "BLE_QIOT_PROPERTY_{}_SIZE_MAX".format(id.upper())
         ctx += "\n//define the actual size of array"
-        ctx += "\n#define " + arr_size_macro + "\t(0)"
+        ctx += "\n#define " + arr_size_macro + "\t(3)"
         ctx += "\n#if " + arr_size_macro + " == 0"
         ctx += "\n\t#error \"please define {} array size first\"".format(id)
         ctx += "\n#endif"
@@ -784,6 +784,24 @@ class iot_event:
 
         ctx_format = "static int ble_event_get_{}_".format(self.id)
         for param in self.params:
+            if isinstance(param.value, iot_bool):
+                ctx_format = "static uint8_t ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_int):
+                ctx_format = "static uint32_t ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_string):
+                ctx_format = "static const char *ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_float):
+                ctx_format = "static float ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_enum):
+                ctx_format = "static uint16_t ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_timestamp):
+                ctx_format = "static uint32_t ble_event_get_{}_".format(self.id)
+            elif isinstance(param.value, iot_struct):
+                print("error iot struct")
+            elif isinstance(param.value, iot_array):
+                print("error iot array")
+            else:
+                print("error unkonw type")
             ctx += param.value.get_source_get_function(ctx_format, param.get_event_param_id())
 
         ctx += "\nstatic ble_event_param sg_ble_event_{}_array[{}] = {{".format(self.id, self.params_num)
@@ -987,7 +1005,7 @@ class iot_parse_dt:
                "typedef int (*event_get_cb)(char *buf, uint16_t buf_len);\n" \
                "// each param have a struct ble_event_param, make up a array for the event\n" \
                "typedef struct{\n" \
-               "\tevent_get_cb get_cb;	//get param data callback\n" \
+               "\tvoid *get_cb;	//get param data callback\n" \
                "\tuint8_t type;	//param type\n" \
                "}ble_event_param;\n" \
                "// a array named sg_ble_event_array is composed by all the event array\n" \

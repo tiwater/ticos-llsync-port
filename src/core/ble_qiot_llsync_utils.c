@@ -643,6 +643,47 @@ uint8_t ble_event_get_param_id_type(uint8_t event_id, uint8_t param_id)
     return sg_ble_event_array[event_id].event_array[param_id].type;
 }
 
+static int event_get_val(ble_event_param *event, char *buf, int len)
+{
+	switch (event->type & 0x0F) {
+	case BLE_QIOT_DATA_TYPE_BOOL: {
+		buf[0] = ((_ticos_send_bool_t)(event->get_cb))();
+		return sizeof(uint8_t);
+	};
+	case BLE_QIOT_DATA_TYPE_STRING: {
+		const char *val = ((_ticos_send_string_t)(event->get_cb))();
+		int ret_len = strlen(val) + 1;
+		memcpy(buf, val, ret_len);
+		return ret_len;
+	};
+	case BLE_QIOT_DATA_TYPE_FLOAT: {
+		float val = ((_ticos_send_float_t)(event->get_cb))();
+        //val = HTONL(val);
+		memcpy(buf, &val, sizeof(float));
+		return sizeof(float);
+	};
+	case BLE_QIOT_DATA_TYPE_ENUM: {
+		uint16_t val = ((_ticos_send_uint16_t)(event->get_cb))();
+		val = HTONS(val);
+		memcpy(buf, &val, sizeof(uint16_t));
+		return sizeof(uint16_t);
+	};
+	case BLE_QIOT_DATA_TYPE_INT:
+	case BLE_QIOT_DATA_TYPE_TIME: {
+		uint32_t val = ((_ticos_send_uint32_t)(event->get_cb))();
+		val = HTONL(val);
+		memcpy(buf, &val, sizeof(uint32_t));
+		return sizeof(uint32_t);
+	};
+	case BLE_QIOT_DATA_TYPE_STRUCT:
+	case BLE_QIOT_DATA_TYPE_ARRAY:
+	case BLE_QIOT_DATA_TYPE_BUTT:
+		;
+	}
+    return BLE_QIOT_RS_ERR;
+}
+
+
 int ble_event_get_data_by_id(uint8_t event_id, uint8_t param_id, char *out_buf, uint16_t buf_len)
 {
     int ret_len = 0;
@@ -664,7 +705,7 @@ int ble_event_get_data_by_id(uint8_t event_id, uint8_t param_id, char *out_buf, 
         ble_qiot_log_e("not enough space get data, event id %d, param id %d", event_id, param_id);
         return -1;
     }
-    ret_len = sg_ble_event_array[event_id].event_array[param_id].get_cb(out_buf, buf_len);
+    ret_len = event_get_val(&sg_ble_event_array[event_id].event_array[param_id], out_buf, buf_len);
     if (ret_len < 0) {
         ble_qiot_log_e("get event data failed, event id %d, param id %d", event_id, param_id);
         return -1;

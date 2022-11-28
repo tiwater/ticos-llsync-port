@@ -307,7 +307,7 @@ enum {
 typedef int (*event_get_cb)(char *buf, uint16_t buf_len);
 // each param have a struct ble_event_param, make up a array for the event
 typedef struct{
-	event_get_cb get_cb;	//get param data callback
+	void *get_cb;	//get param data callback
 	uint8_t type;	//param type
 }ble_event_param;
 // a array named sg_ble_event_array is composed by all the event array
