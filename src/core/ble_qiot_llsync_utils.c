@@ -21,6 +21,228 @@ extern "C" {
 #include "ble_qiot_param_check.h"
 #include "ble_qiot_common.h"
 
+typedef uint16_t (*_ticos_send_uint16_t)();
+typedef uint32_t (*_ticos_send_uint32_t)();
+typedef uint8_t (*_ticos_send_bool_t)();
+typedef float (*_ticos_send_float_t)();
+typedef const char* (*_ticos_send_string_t)();
+
+typedef void (*_ticos_recv_uint16_t)(uint16_t);
+typedef void (*_ticos_recv_uint32_t)(uint32_t);
+typedef void (*_ticos_recv_bool_t)(uint8_t);
+typedef void (*_ticos_recv_float_t)(float);
+typedef void (*_ticos_recv_string_t)(const char*, int len);
+
+typedef uint16_t (*_ticos_array_send_uint16_t)(int index);
+typedef uint32_t (*_ticos_array_send_uint32_t)(int index);
+typedef uint8_t (*_ticos_array_send_bool_t)(int index);
+typedef float (*_ticos_array_send_float_t)(int index);
+typedef const char* (*_ticos_array_send_string_t)(int index);
+
+typedef void (*_ticos_array_recv_uint16_t)(uint16_t, int index);
+typedef void (*_ticos_array_recv_uint32_t)(uint32_t, int index);
+typedef void (*_ticos_array_recv_bool_t)(uint8_t, int index);
+typedef void (*_ticos_array_recv_float_t)(float, int index);
+typedef void (*_ticos_array_recv_string_t)(const char*, int len, int index);
+
+static int property_set_val(ble_property_t *property, char *val, int len)
+{
+	switch (property->type & 0x0f) {
+	case BLE_QIOT_DATA_TYPE_BOOL:
+		((_ticos_recv_bool_t)(property->set_cb))(val[0]);
+		break;
+	case BLE_QIOT_DATA_TYPE_STRING:
+		((_ticos_recv_string_t)(property->set_cb))(val, len);
+		break;
+	case BLE_QIOT_DATA_TYPE_FLOAT: {
+		float tmp;
+		memcpy(&tmp, val, sizeof(float));
+		//tmp = HTONL(tmp);
+		((_ticos_recv_float_t)(property->set_cb))(tmp);
+	} break;
+	case BLE_QIOT_DATA_TYPE_ENUM: {
+		uint16_t tmp;
+		memcpy(&tmp, val, sizeof(uint16_t));
+		tmp = HTONS(tmp);
+		((_ticos_recv_uint16_t)(property->set_cb))(tmp);
+	} break;
+	case BLE_QIOT_DATA_TYPE_INT:
+	case BLE_QIOT_DATA_TYPE_TIME: {
+		uint32_t tmp;
+		memcpy(&tmp, val, sizeof(uint32_t));
+		tmp = HTONL(tmp);
+		((_ticos_recv_uint32_t)(property->set_cb))(tmp);
+	} break;
+	case BLE_QIOT_DATA_TYPE_STRUCT:
+        ((property_set_cb)property->set_cb)(val, len);
+        break;
+	case BLE_QIOT_DATA_TYPE_ARRAY:
+	case BLE_QIOT_DATA_TYPE_BUTT:
+		return BLE_QIOT_RS_ERR;
+	}
+	return BLE_QIOT_RS_OK;
+}
+
+static int property_get_val(ble_property_t *property, char *buf, int len)
+{
+	switch (property->type & 0x0F) {
+	case BLE_QIOT_DATA_TYPE_BOOL: {
+		buf[0] = ((_ticos_send_bool_t)(property->get_cb))();
+		return sizeof(uint8_t);
+	};
+	case BLE_QIOT_DATA_TYPE_STRING: {
+		const char *val = ((_ticos_send_string_t)(property->get_cb))();
+		int ret_len = strlen(val) + 1;
+		memcpy(buf, val, ret_len);
+		return ret_len;
+	};
+	case BLE_QIOT_DATA_TYPE_FLOAT: {
+		float val = ((_ticos_send_float_t)(property->get_cb))();
+        //val = HTONL(val);
+		memcpy(buf, &val, sizeof(float));
+		return sizeof(float);
+	};
+	case BLE_QIOT_DATA_TYPE_ENUM: {
+		uint16_t val = ((_ticos_send_uint16_t)(property->get_cb))();
+		val = HTONS(val);
+		memcpy(buf, &val, sizeof(uint16_t));
+		return sizeof(uint16_t);
+	};
+	case BLE_QIOT_DATA_TYPE_INT:
+	case BLE_QIOT_DATA_TYPE_TIME: {
+		uint32_t val = ((_ticos_send_uint32_t)(property->get_cb))();
+		val = HTONL(val);
+		memcpy(buf, &val, sizeof(uint32_t));
+		return sizeof(uint32_t);
+	};
+	case BLE_QIOT_DATA_TYPE_STRUCT:
+        return ((property_get_cb)(property->get_cb))(buf, len);
+	case BLE_QIOT_DATA_TYPE_ARRAY:
+	case BLE_QIOT_DATA_TYPE_BUTT:
+		;
+	}
+    return BLE_QIOT_RS_ERR;
+}
+
+static int property_array_set_val(ble_property_t *property, char *val, int len, int index)
+{
+	switch (property->type & 0xf0) {
+	case BLE_QIOT_ARRAY_STRING_BIT_MASK:
+		((_ticos_array_recv_string_t)(property->set_cb))(val, len, index);
+		break;
+	case BLE_QIOT_ARRAY_FLOAT_BIT_MASK: {
+		float tmp;
+		memcpy(&tmp, val, sizeof(float));
+		//tmp = HTONL(tmp);
+		((_ticos_array_recv_float_t)(property->set_cb))(tmp, index);
+	} break;
+	case BLE_QIOT_ARRAY_INT_BIT_MASK: {
+		uint32_t tmp;
+		memcpy(&tmp, val, sizeof(uint32_t));
+		tmp = HTONL(tmp);
+		((_ticos_array_recv_uint32_t)(property->set_cb))(tmp, index);
+	} break;
+    case BLE_QIOT_ARRAY_STRUCT_BIT_MASK: {
+        return BLE_QIOT_RS_ERR;
+    } break;
+	default:
+		;
+	}
+	switch (property->type & 0x0f) {
+	case BLE_QIOT_DATA_TYPE_BOOL:
+		((_ticos_array_recv_bool_t)(property->set_cb))(val[0], index);
+		break;
+	case BLE_QIOT_DATA_TYPE_STRING:
+		((_ticos_array_recv_string_t)(property->set_cb))(val, len, index);
+		break;
+	case BLE_QIOT_DATA_TYPE_FLOAT: {
+		float tmp;
+		memcpy(&tmp, val, sizeof(float));
+		//tmp = HTONL(tmp);
+		((_ticos_array_recv_float_t)(property->set_cb))(tmp, index);
+	} break;
+	case BLE_QIOT_DATA_TYPE_ENUM: {
+		uint16_t tmp;
+		memcpy(&tmp, val, sizeof(uint16_t));
+		tmp = HTONS(tmp);
+		((_ticos_array_recv_uint16_t)(property->set_cb))(tmp, index);
+	} break;
+	case BLE_QIOT_DATA_TYPE_INT:
+	case BLE_QIOT_DATA_TYPE_TIME: {
+		uint32_t tmp;
+		memcpy(&tmp, val, sizeof(uint32_t));
+		tmp = HTONL(tmp);
+		((_ticos_array_recv_uint32_t)(property->set_cb))(tmp, index);
+	} break;
+	default:
+		return BLE_QIOT_RS_ERR;
+	}
+	return BLE_QIOT_RS_OK;
+}
+
+static int property_array_get_val(ble_property_t *property, char *buf, int len, int index)
+{
+	switch (property->type & 0xf0) {
+	case BLE_QIOT_ARRAY_STRING_BIT_MASK: {
+		const char *val = ((_ticos_array_send_string_t)(property->get_cb))(index);
+		int ret_len = strlen(val) + 1;
+		memcpy(buf, val, ret_len);
+		return ret_len;
+	} break;
+	case BLE_QIOT_ARRAY_FLOAT_BIT_MASK: {
+		float val = ((_ticos_array_send_float_t)(property->get_cb))(index);
+        //val = HTONL(val);
+		memcpy(buf, &val, sizeof(float));
+		return sizeof(float);
+	} break;
+	case BLE_QIOT_ARRAY_INT_BIT_MASK: {
+		uint32_t val = ((_ticos_array_send_uint32_t)(property->get_cb))(index);
+		val = HTONL(val);
+		memcpy(buf, &val, sizeof(uint32_t));
+		return sizeof(uint32_t);
+	} break;
+    case BLE_QIOT_ARRAY_STRUCT_BIT_MASK: {
+        return BLE_QIOT_RS_ERR;
+    } break;
+	default:
+		;
+	}
+	switch (property->type & 0x0F) {
+	case BLE_QIOT_DATA_TYPE_BOOL: {
+		buf[0] = ((_ticos_array_send_bool_t)(property->get_cb))(index);
+		return sizeof(uint8_t);
+	};
+	case BLE_QIOT_DATA_TYPE_STRING: {
+		const char *val = ((_ticos_array_send_string_t)(property->get_cb))(index);
+		int ret_len = strlen(val) + 1;
+		memcpy(buf, val, ret_len);
+		return ret_len;
+	};
+	case BLE_QIOT_DATA_TYPE_FLOAT: {
+		float val = ((_ticos_array_send_float_t)(property->get_cb))(index);
+        //val = HTONL(val);
+		memcpy(buf, &val, sizeof(float));
+		return sizeof(float);
+	};
+	case BLE_QIOT_DATA_TYPE_ENUM: {
+		uint16_t val = ((_ticos_array_send_uint16_t)(property->get_cb))(index);
+		val = HTONS(val);
+		memcpy(buf, &val, sizeof(uint16_t));
+		return sizeof(uint16_t);
+	};
+	case BLE_QIOT_DATA_TYPE_INT:
+	case BLE_QIOT_DATA_TYPE_TIME: {
+		uint32_t val = ((_ticos_array_send_uint32_t)(property->get_cb))(index);
+		val = HTONL(val);
+		memcpy(buf, &val, sizeof(uint32_t));
+		return sizeof(uint32_t);
+	};
+	default:
+        ;
+	}
+    return BLE_QIOT_RS_ERR;
+}
+
 extern ble_action_t sg_ble_action_array[];
 extern ble_event_t sg_ble_event_array[];
 extern ble_property_t sg_ble_property_array[];
@@ -85,17 +307,17 @@ int ble_user_property_struct_array_data_set(const e_ble_tlv *tlv)
         }
         if ((BLE_QIOT_ARRAY_INT_BIT_MASK == array_type) || (BLE_QIOT_ARRAY_FLOAT_BIT_MASK == array_type))
         {
-            ret = ((property_array_set_cb)sg_ble_property_array[tlv->id].set_cb)(tlv->val + parse_len, sizeof(int), index);
+            ret = property_array_set_val(&sg_ble_property_array[tlv->id], tlv->val + parse_len, sizeof(int), index);
             parse_len += sizeof(int);
         }
         else if (BLE_QIOT_ARRAY_STRING_BIT_MASK == array_type){
             memcpy(&str_len, &tlv->val[parse_len], sizeof(uint16_t));
             str_len = NTOHS(str_len);
             parse_len += sizeof(uint16_t);
-            ret = ((property_array_set_cb)sg_ble_property_array[tlv->id].set_cb)(tlv->val + parse_len, str_len, index);
+            ret = property_array_set_val(&sg_ble_property_array[tlv->id], tlv->val + parse_len, str_len, index);
             parse_len += str_len;
         }else{
-            ret = sg_ble_property_array[tlv->id].set_cb(tlv->val, tlv->len);
+            ret = ((property_set_cb)(sg_ble_property_array[tlv->id].set_cb))(tlv->val, tlv->len);
             parse_len = tlv->len;
         }
         if (ret != BLE_QIOT_RS_OK){
@@ -117,14 +339,14 @@ int ble_user_property_struct_array_data_get(uint8_t id, char *buf, uint16_t len)
     uint16_t ret_len = 0;
 
     if (BLE_QIOT_ARRAY_STRUCT_BIT_MASK == array_type){
-        return sg_ble_property_array[id].get_cb(buf, len);
+        return ((property_get_cb)(sg_ble_property_array[id].get_cb))(buf, len);
     }
 
     for (index = 0; index < sg_ble_property_array[id].elem_num; index++){
         if ((BLE_QIOT_ARRAY_INT_BIT_MASK == array_type) || (BLE_QIOT_ARRAY_FLOAT_BIT_MASK == array_type)){
-            ret_len = ((property_array_get_cb)sg_ble_property_array[id].get_cb)(buf + data_len, len - data_len, index);
+            ret_len = property_array_get_val(&sg_ble_property_array[id], buf + data_len, len - data_len, index);
         }else{
-            ret_len = ((property_array_get_cb)sg_ble_property_array[id].get_cb)(buf + data_len + 2, len - data_len - 2, index);
+            ret_len = property_array_get_val(&sg_ble_property_array[id], buf + data_len + 2, len - data_len - 2, index);
             if (ret_len != 0)
             {
                 tmp_len = NTOHS(ret_len);
@@ -157,7 +379,7 @@ int ble_user_property_set_data(const e_ble_tlv *tlv)
                 return BLE_QIOT_RS_ERR;
             }
         }else{
-            if (0 != sg_ble_property_array[tlv->id].set_cb(tlv->val, tlv->len)) {
+            if (0 != property_set_val(&sg_ble_property_array[tlv->id], tlv->val, tlv->len)) {
                 ble_qiot_log_e("set property id %d failed", tlv->id);
                 return BLE_QIOT_RS_ERR;
             }
@@ -187,7 +409,7 @@ int ble_user_property_get_data_by_id(uint8_t id, char *buf, uint16_t buf_len)
         if ((sg_ble_property_array[id].type & 0x0F) == BLE_QIOT_DATA_TYPE_ARRAY){
             ret_len = ble_user_property_struct_array_data_get(id, buf, buf_len);
         }else{
-            ret_len = sg_ble_property_array[id].get_cb(buf, buf_len);
+            ret_len = property_get_val(&sg_ble_property_array[id], buf, buf_len);
         }
         if (ret_len < 0) {
             ble_qiot_log_e("get property id %d data failed", id);
@@ -196,7 +418,7 @@ int ble_user_property_get_data_by_id(uint8_t id, char *buf, uint16_t buf_len)
             if (ble_check_ret_value_by_type(sg_ble_property_array[id].type & 0x0F, buf_len, ret_len)){
                 return ret_len;
             }else{
-                ble_qiot_log_e("property id %d length invalid", id);
+                ble_qiot_log_e("property id %d length invalid, ret_len=%d", id, ret_len);
                 return -1;
             }
         }
@@ -236,7 +458,7 @@ int ble_user_property_struct_handle(const char *in_buf, uint16_t buf_len, ble_pr
             ble_qiot_log_e("invalid member id %d", tlv.id);
             return parse_len;
         }
-        if (BLE_QIOT_RS_OK != struct_arr[tlv.id].set_cb(tlv.val, tlv.len)) {
+        if (BLE_QIOT_RS_OK != property_set_val(&struct_arr[tlv.id], tlv.val, tlv.len)) {
             ble_qiot_log_e("user handle property error, member id %d, type %d, len %d", tlv.id, tlv.type, tlv.len);
             return parse_len;
         }
@@ -255,7 +477,7 @@ int ble_user_property_struct_get_data(char *in_buf, uint16_t buf_len, ble_proper
     uint16_t string_len                        = 0;
 
     for (property_id = 0; property_id < arr_size; property_id++) {
-        property_type = struct_arr[property_id].type;
+        property_type = struct_arr[property_id].type & 0x0f;
         if (property_type >= BLE_QIOT_DATA_TYPE_BUTT) {
             ble_qiot_log_e("member id %d type %d invalid", property_id, property_type);
             return BLE_QIOT_RS_ERR;
@@ -263,9 +485,9 @@ int ble_user_property_struct_get_data(char *in_buf, uint16_t buf_len, ble_proper
         data_buf[data_len++] = BLE_QIOT_PACKAGE_TLV_HEAD(property_type, property_id);
         if (BLE_QIOT_DATA_TYPE_STRING == property_type) {
             // reserved 2 bytes for string length
-            property_len = struct_arr[property_id].get_cb((char *)data_buf + data_len + 2, buf_len - data_len - 2);
+            property_len = property_get_val(&struct_arr[property_id], (char *)data_buf + data_len + 2, buf_len - data_len - 2);
         } else {
-            property_len = struct_arr[property_id].get_cb((char *)data_buf + data_len, buf_len - data_len);
+            property_len = property_get_val(&struct_arr[property_id], (char *)data_buf + data_len, buf_len - data_len);
         }
         if (property_len < 0) {
             ble_qiot_log_e("too long data, member id %d, data length %d", property_id, data_len);
@@ -325,7 +547,7 @@ int ble_user_property_struct_array_set(uint8_t id, const char *in_buf, uint16_t 
             return parse_len;
         }
 
-        if (BLE_QIOT_RS_OK != ((property_array_set_cb)struct_arr[tlv.id].set_cb)(tlv.val, tlv.len, array_num)) {
+        if (BLE_QIOT_RS_OK != property_array_set_val(&struct_arr[tlv.id], tlv.val, tlv.len, array_num)) {
             ble_qiot_log_e("user handle property error, member id %d, type %d, len %d", tlv.id, tlv.type, tlv.len);
             return parse_len;
         }
@@ -364,9 +586,9 @@ int ble_user_property_struct_array_get(uint8_t id, char *in_buf, uint16_t buf_le
             data_buf[data_len++] = BLE_QIOT_PACKAGE_TLV_HEAD(property_type, property_id);
             if (BLE_QIOT_DATA_TYPE_STRING == property_type) {
                 // reserved 2 bytes for string length
-                property_len = ((property_array_get_cb)struct_arr[property_id].get_cb)((char *)data_buf + data_len + 2, buf_len - data_len - 2, i);
-            } else {
-                property_len = ((property_array_get_cb)struct_arr[property_id].get_cb)((char *)data_buf + data_len, buf_len - data_len, i);
+                property_len = property_array_get_val(&struct_arr[property_id], (char *)data_buf + data_len + 2, buf_len - data_len - 2, i);
+           } else {
+                property_len = property_array_get_val(&struct_arr[property_id], (char *)data_buf + data_len, buf_len - data_len, i);
             }
 
             if (property_len < 0) {

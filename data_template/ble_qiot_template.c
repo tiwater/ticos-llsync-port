@@ -14,215 +14,168 @@ extern "C" {
 #endif
 #include "ble_qiot_template.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include "ble_qiot_export.h"
 #include "ble_qiot_common.h"
 #include "ble_qiot_param_check.h"
-static int ble_property_t_bool_set(const char *data, uint16_t len)
+static void ble_property_t_bool_set(uint8_t val)
 {
-	uint8_t tmp_bool = 0;
-	tmp_bool = data[0];
-	ble_qiot_log_d("set id t_bool bool value %02x", data[0]);
-	return 0;
+	ble_qiot_log_d("set id t_bool bool value %02x", val);
+	return;
 }
 
-static int ble_property_t_bool_get( char *data, uint16_t len)
+static uint8_t ble_property_t_bool_get()
 {
 	uint8_t tmp_bool = 1;
-	data[0] = tmp_bool;
-	ble_qiot_log_d("get id t_bool bool value %02x", data[0]);
-	return sizeof(uint8_t);
+	ble_qiot_log_d("get id t_bool bool value %02x", tmp_bool);
+	return tmp_bool;
 }
 
-static int ble_property_t_int_set(const char *data, uint16_t len)
+static void ble_property_t_int_set(uint32_t val)
 {
-	int tmp_int = 0;
-	memcpy(&tmp_int, data, sizeof(int));
-	tmp_int = NTOHL(tmp_int);
-	ble_qiot_log_d("set id t_int int value %d", tmp_int);
-	return 0;
+	ble_qiot_log_d("set id t_int int value %d", val);
+	return;
 }
 
-static int ble_property_t_int_get( char *data, uint16_t len)
+static uint32_t ble_property_t_int_get()
 {
-	int tmp_int = 1;
-	tmp_int = HTONL(tmp_int);
-	memcpy(data, &tmp_int, sizeof(int));
-	ble_qiot_log_d("get id t_int int value %d", 12345678);
-	return sizeof(int);
+	uint32_t tmp_int = 1;
+	ble_qiot_log_d("get id t_int int value %d", tmp_int);
+	return tmp_int;
 }
 
-static int ble_property_t_str_set(const char *data, uint16_t len)
+static void ble_property_t_str_set(const char *val, int len)
 {
-	char tmp_str[128] = "";//copy the actual length of the text
-	memcpy(tmp_str, data, 1);
-	ble_qiot_log_d("set id t_str string value %s", data);
-	return 0;
+	ble_qiot_log_d("set id t_str string value %s", val);
+	return;
 }
 
-static int ble_property_t_str_get( char *data, uint16_t len)
+static const char *ble_property_t_str_get()
 {
-	char tmp_str[2] = "a";
-	memcpy(data, tmp_str, strlen(tmp_str));
-	ble_qiot_log_d("get id t_str string value %s", data);
-	return strlen(tmp_str);
+	const char *tmp_str = "ticos";
+	ble_qiot_log_d("get id t_str string value %s", tmp_str);
+	return tmp_str;
 }
 
-static int ble_property_t_float_set(const char *data, uint16_t len)
+static void ble_property_t_float_set(float val)
 {
-	float tmp_float = 0;
-	memcpy(&tmp_float, data, sizeof(float));
-	ble_qiot_log_d("set id t_float float value %f", tmp_float);
-	return 0;
+	ble_qiot_log_d("set id t_float float value %f", val);
+	return;
 }
 
-static int ble_property_t_float_get( char *data, uint16_t len)
+static float ble_property_t_float_get()
 {
 	float tmp_float = 1.23456;
-	memcpy(data, &tmp_float, sizeof(float));
 	ble_qiot_log_d("get id t_float float value %f", tmp_float);
-	return sizeof(float);
+	return tmp_float;
 }
 
-static int ble_property_t_enum_set(const char *data, uint16_t len)
+static void ble_property_t_enum_set(uint16_t val)
+{
+	ble_qiot_log_d("set id t_enum int value %d", val);
+	return;
+}
+
+static uint16_t ble_property_t_enum_get()
 {
 	uint16_t tmp_enum = 0;
-	memcpy(&tmp_enum, data, sizeof(uint16_t));
-	tmp_enum = NTOHS(tmp_enum);
-	ble_qiot_log_d("set id t_enum int value %d", tmp_enum);
-	return 0;
+	ble_qiot_log_d("get id t_enum int value %d", tmp_enum);
+	return tmp_enum;
 }
 
-static int ble_property_t_enum_get( char *data, uint16_t len)
+static void ble_property_t_time_set(uint32_t val)
 {
-	uint16_t tmp_enum = 0;
-	tmp_enum = HTONS(tmp_enum);
-	memcpy(data, &tmp_enum, sizeof(uint16_t));
-	ble_qiot_log_d("get id t_enum int value %d", 1234);
-	return sizeof(uint16_t);
+	ble_qiot_log_d("set id t_time time value %d", val);
+	return;
 }
 
-static int ble_property_t_time_set(const char *data, uint16_t len)
-{
-	uint32_t tmp_time = 0;
-	memcpy(&tmp_time, data, sizeof(uint32_t));
-	tmp_time = NTOHL(tmp_time);
-	ble_qiot_log_d("set id t_time time value %d", tmp_time);
-	return 0;
-}
-
-static int ble_property_t_time_get( char *data, uint16_t len)
+static uint32_t ble_property_t_time_get()
 {
 	uint32_t tmp_time = 12345678;
-	tmp_time = HTONL(tmp_time);
-	memcpy(data, &tmp_time, sizeof(uint32_t));
-	ble_qiot_log_d("get id t_time time value %d", 12345678);
-	return sizeof(uint32_t);
+	ble_qiot_log_d("get id t_time time value %d", tmp_time);
+	return tmp_time;
 }
 
-static int ble_property_t_struct_s_bool_set(const char *data, uint16_t len)
+static void ble_property_t_struct_s_bool_set(uint8_t val)
 {
-	uint8_t tmp_bool = 0;
-	tmp_bool = data[0];
-	ble_qiot_log_d("set id s_bool bool value %02x", data[0]);
-	return 0;
+	ble_qiot_log_d("set id s_bool bool value %02x", val);
+	return;
 }
 
-static int ble_property_t_struct_s_bool_get( char *data, uint16_t len)
+static uint8_t ble_property_t_struct_s_bool_get()
 {
 	uint8_t tmp_bool = 1;
-	data[0] = tmp_bool;
-	ble_qiot_log_d("get id s_bool bool value %02x", data[0]);
-	return sizeof(uint8_t);
+	ble_qiot_log_d("get id s_bool bool value %02x", tmp_bool);
+	return tmp_bool;
 }
 
-static int ble_property_t_struct_s_int_set(const char *data, uint16_t len)
+static void ble_property_t_struct_s_int_set(uint32_t val)
 {
-	int tmp_int = 0;
-	memcpy(&tmp_int, data, sizeof(int));
-	tmp_int = NTOHL(tmp_int);
-	ble_qiot_log_d("set id s_int int value %d", tmp_int);
-	return 0;
+	ble_qiot_log_d("set id s_int int value %d", val);
+	return;
 }
 
-static int ble_property_t_struct_s_int_get( char *data, uint16_t len)
+static uint32_t ble_property_t_struct_s_int_get()
 {
-	int tmp_int = 1;
-	tmp_int = HTONL(tmp_int);
-	memcpy(data, &tmp_int, sizeof(int));
-	ble_qiot_log_d("get id s_int int value %d", 12345678);
-	return sizeof(int);
+	uint32_t tmp_int = 1;
+	ble_qiot_log_d("get id s_int int value %d", tmp_int);
+	return tmp_int;
 }
 
-static int ble_property_t_struct_s_str_set(const char *data, uint16_t len)
+static void ble_property_t_struct_s_str_set(const char *val, int len)
 {
-	char tmp_str[128] = "";//copy the actual length of the text
-	memcpy(tmp_str, data, 1);
-	ble_qiot_log_d("set id s_str string value %s", data);
-	return 0;
+	ble_qiot_log_d("set id s_str string value %s", val);
+	return;
 }
 
-static int ble_property_t_struct_s_str_get( char *data, uint16_t len)
+static const char *ble_property_t_struct_s_str_get()
 {
-	char tmp_str[2] = "a";
-	memcpy(data, tmp_str, strlen(tmp_str));
-	ble_qiot_log_d("get id s_str string value %s", data);
-	return strlen(tmp_str);
+	const char *tmp_str = "ticos";
+	ble_qiot_log_d("get id s_str string value %s", tmp_str);
+	return tmp_str;
 }
 
-static int ble_property_t_struct_s_float_set(const char *data, uint16_t len)
+static void ble_property_t_struct_s_float_set(float val)
 {
-	float tmp_float = 0;
-	memcpy(&tmp_float, data, sizeof(float));
-	ble_qiot_log_d("set id s_float float value %f", tmp_float);
-	return 0;
+	ble_qiot_log_d("set id s_float float value %f", val);
+	return;
 }
 
-static int ble_property_t_struct_s_float_get( char *data, uint16_t len)
+static float ble_property_t_struct_s_float_get()
 {
 	float tmp_float = 1.23456;
-	memcpy(data, &tmp_float, sizeof(float));
 	ble_qiot_log_d("get id s_float float value %f", tmp_float);
-	return sizeof(float);
+	return tmp_float;
 }
 
-static int ble_property_t_struct_s_enum_set(const char *data, uint16_t len)
+static void ble_property_t_struct_s_enum_set(uint16_t val)
+{
+	ble_qiot_log_d("set id s_enum int value %d", val);
+	return;
+}
+
+static uint16_t ble_property_t_struct_s_enum_get()
 {
 	uint16_t tmp_enum = 0;
-	memcpy(&tmp_enum, data, sizeof(uint16_t));
-	tmp_enum = NTOHS(tmp_enum);
-	ble_qiot_log_d("set id s_enum int value %d", tmp_enum);
-	return 0;
+	ble_qiot_log_d("get id s_enum int value %d", tmp_enum);
+	return tmp_enum;
 }
 
-static int ble_property_t_struct_s_enum_get( char *data, uint16_t len)
+static void ble_property_t_struct_s_time_set(uint32_t val)
 {
-	uint16_t tmp_enum = 0;
-	tmp_enum = HTONS(tmp_enum);
-	memcpy(data, &tmp_enum, sizeof(uint16_t));
-	ble_qiot_log_d("get id s_enum int value %d", 1234);
-	return sizeof(uint16_t);
+	ble_qiot_log_d("set id s_time time value %d", val);
+	return;
 }
 
-static int ble_property_t_struct_s_time_set(const char *data, uint16_t len)
-{
-	uint32_t tmp_time = 0;
-	memcpy(&tmp_time, data, sizeof(uint32_t));
-	tmp_time = NTOHL(tmp_time);
-	ble_qiot_log_d("set id s_time time value %d", tmp_time);
-	return 0;
-}
-
-static int ble_property_t_struct_s_time_get( char *data, uint16_t len)
+static uint32_t ble_property_t_struct_s_time_get()
 {
 	uint32_t tmp_time = 12345678;
-	tmp_time = HTONL(tmp_time);
-	memcpy(data, &tmp_time, sizeof(uint32_t));
-	ble_qiot_log_d("get id s_time time value %d", 12345678);
-	return sizeof(uint32_t);
+	ble_qiot_log_d("get id s_time time value %d", tmp_time);
+	return tmp_time;
 }
 
-static ble_property_t sg_ble_t_struct_property_array[1] = {
+static ble_property_t sg_ble_t_struct_property_array[6] = {
 	{(property_set_cb)ble_property_t_struct_s_bool_set, (property_get_cb)ble_property_t_struct_s_bool_get, 0, BLE_QIOT_DATA_TYPE_BOOL, 1},
 	{(property_set_cb)ble_property_t_struct_s_int_set, (property_get_cb)ble_property_t_struct_s_int_get, 0, BLE_QIOT_DATA_TYPE_INT, 1},
 	{(property_set_cb)ble_property_t_struct_s_str_set, (property_get_cb)ble_property_t_struct_s_str_get, 0, BLE_QIOT_DATA_TYPE_STRING, 1},
@@ -241,20 +194,17 @@ static int ble_property_t_struct_get(char *data, uint16_t len)
 	return ble_user_property_struct_get_data(data, len, sg_ble_t_struct_property_array, 6);
 }
 
-static int ble_property_t_struct2_s_bool_set(const char *data, uint16_t len)
+static void ble_property_t_struct2_s_bool_set(uint8_t val)
 {
-	uint8_t tmp_bool = 0;
-	tmp_bool = data[0];
-	ble_qiot_log_d("set id s_bool bool value %02x", data[0]);
-	return 0;
+	ble_qiot_log_d("set id s_bool bool value %02x", val);
+	return;
 }
 
-static int ble_property_t_struct2_s_bool_get( char *data, uint16_t len)
+static uint8_t ble_property_t_struct2_s_bool_get()
 {
 	uint8_t tmp_bool = 1;
-	data[0] = tmp_bool;
-	ble_qiot_log_d("get id s_bool bool value %02x", data[0]);
-	return sizeof(uint8_t);
+	ble_qiot_log_d("get id s_bool bool value %02x", tmp_bool);
+	return tmp_bool;
 }
 
 static ble_property_t sg_ble_t_struct2_property_array[1] = {
@@ -271,140 +221,108 @@ static int ble_property_t_struct2_get(char *data, uint16_t len)
 	return ble_user_property_struct_get_data(data, len, sg_ble_t_struct2_property_array, 1);
 }
 
-static int ble_property_t_int_array_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_int_array_set(uint32_t val, int index)
 {
-	int tmp_int = 0;
-	memcpy(&tmp_int, data, sizeof(int));
-	tmp_int = NTOHL(tmp_int);
-	ble_qiot_log_d("set id t_int_array int value %d", tmp_int);
-	return 0;
+	ble_qiot_log_d("set id t_int_array int value %d", val);
+	return;
 }
 
-static int ble_property_t_int_array_get( char *data, uint16_t len, uint16_t index)
+static uint32_t ble_property_t_int_array_get(int index)
 {
-	int tmp_int = 1;
-	tmp_int = HTONL(tmp_int);
-	memcpy(data, &tmp_int, sizeof(int));
-	ble_qiot_log_d("get id t_int_array int value %d", 12345678);
-	return sizeof(int);
+	uint32_t tmp_int = 1;
+	ble_qiot_log_d("get id t_int_array int value %d", tmp_int);
+	return tmp_int;
 }
 
-static int ble_property_t_flot_array_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_flot_array_set(float val, int index)
 {
-	float tmp_float = 0;
-	memcpy(&tmp_float, data, sizeof(float));
-	ble_qiot_log_d("set id t_flot_array float value %f", tmp_float);
-	return 0;
+	ble_qiot_log_d("set id t_flot_array float value %f", val);
+	return;
 }
 
-static int ble_property_t_flot_array_get( char *data, uint16_t len, uint16_t index)
+static float ble_property_t_flot_array_get(int index)
 {
 	float tmp_float = 1.23456;
-	memcpy(data, &tmp_float, sizeof(float));
 	ble_qiot_log_d("get id t_flot_array float value %f", tmp_float);
-	return sizeof(float);
+	return tmp_float;
 }
 
-static int ble_property_t_struct_array_t_bool_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_bool_set(uint8_t val, int index)
 {
-	uint8_t tmp_bool = 0;
-	tmp_bool = data[0];
-	ble_qiot_log_d("set id t_bool bool value %02x", data[0]);
-	return 0;
+	ble_qiot_log_d("set id t_bool bool value %02x", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_bool_get( char *data, uint16_t len, uint16_t index)
+static uint8_t ble_property_t_struct_array_t_bool_get(int index)
 {
 	uint8_t tmp_bool = 1;
-	data[0] = tmp_bool;
-	ble_qiot_log_d("get id t_bool bool value %02x", data[0]);
-	return sizeof(uint8_t);
+	ble_qiot_log_d("get id t_bool bool value %02x", tmp_bool);
+	return tmp_bool;
 }
 
-static int ble_property_t_struct_array_t_int_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_int_set(uint32_t val, int index)
 {
-	int tmp_int = 0;
-	memcpy(&tmp_int, data, sizeof(int));
-	tmp_int = NTOHL(tmp_int);
-	ble_qiot_log_d("set id t_int int value %d", tmp_int);
-	return 0;
+	ble_qiot_log_d("set id t_int int value %d", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_int_get( char *data, uint16_t len, uint16_t index)
+static uint32_t ble_property_t_struct_array_t_int_get(int index)
 {
-	int tmp_int = 1;
-	tmp_int = HTONL(tmp_int);
-	memcpy(data, &tmp_int, sizeof(int));
-	ble_qiot_log_d("get id t_int int value %d", 12345678);
-	return sizeof(int);
+	uint32_t tmp_int = 1;
+	ble_qiot_log_d("get id t_int int value %d", tmp_int);
+	return tmp_int;
 }
 
-static int ble_property_t_struct_array_t_str_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_str_set(const char *val, int len, int index)
 {
-	char tmp_str[128] = "";//copy the actual length of the text
-	memcpy(tmp_str, data, 1);
-	ble_qiot_log_d("set id t_str string value %s", data);
-	return 0;
+	ble_qiot_log_d("set id t_str string value %s", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_str_get( char *data, uint16_t len, uint16_t index)
+static const char *ble_property_t_struct_array_t_str_get(int index)
 {
-	char tmp_str[2] = "a";
-	memcpy(data, tmp_str, strlen(tmp_str));
-	ble_qiot_log_d("get id t_str string value %s", data);
-	return strlen(tmp_str);
+	const char *tmp_str = "ticos";
+	ble_qiot_log_d("get id t_str string value %s", tmp_str);
+	return tmp_str;
 }
 
-static int ble_property_t_struct_array_t_float_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_float_set(float val, int index)
 {
-	float tmp_float = 0;
-	memcpy(&tmp_float, data, sizeof(float));
-	ble_qiot_log_d("set id t_float float value %f", tmp_float);
-	return 0;
+	ble_qiot_log_d("set id t_float float value %f", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_float_get( char *data, uint16_t len, uint16_t index)
+static float ble_property_t_struct_array_t_float_get(int index)
 {
 	float tmp_float = 1.23456;
-	memcpy(data, &tmp_float, sizeof(float));
 	ble_qiot_log_d("get id t_float float value %f", tmp_float);
-	return sizeof(float);
+	return tmp_float;
 }
 
-static int ble_property_t_struct_array_t_time_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_time_set(uint32_t val, int index)
 {
-	uint32_t tmp_time = 0;
-	memcpy(&tmp_time, data, sizeof(uint32_t));
-	tmp_time = NTOHL(tmp_time);
-	ble_qiot_log_d("set id t_time time value %d", tmp_time);
-	return 0;
+	ble_qiot_log_d("set id t_time time value %d", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_time_get( char *data, uint16_t len, uint16_t index)
+static uint32_t ble_property_t_struct_array_t_time_get(int index)
 {
 	uint32_t tmp_time = 12345678;
-	tmp_time = HTONL(tmp_time);
-	memcpy(data, &tmp_time, sizeof(uint32_t));
-	ble_qiot_log_d("get id t_time time value %d", 12345678);
-	return sizeof(uint32_t);
+	ble_qiot_log_d("get id t_time time value %d", tmp_time);
+	return tmp_time;
 }
 
-static int ble_property_t_struct_array_t_enum_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_struct_array_t_enum_set(uint16_t val, int index)
 {
-	uint16_t tmp_enum = 0;
-	memcpy(&tmp_enum, data, sizeof(uint16_t));
-	tmp_enum = NTOHS(tmp_enum);
-	ble_qiot_log_d("set id t_enum int value %d", tmp_enum);
-	return 0;
+	ble_qiot_log_d("set id t_enum int value %d", val);
+	return;
 }
 
-static int ble_property_t_struct_array_t_enum_get( char *data, uint16_t len, uint16_t index)
+static uint16_t ble_property_t_struct_array_t_enum_get(int index)
 {
 	uint16_t tmp_enum = 0;
-	tmp_enum = HTONS(tmp_enum);
-	memcpy(data, &tmp_enum, sizeof(uint16_t));
-	ble_qiot_log_d("get id t_enum int value %d", 1234);
-	return sizeof(uint16_t);
+	ble_qiot_log_d("get id t_enum int value %d", tmp_enum);
+	return tmp_enum;
 }
 
 static ble_property_t sg_ble_t_struct_array_property_array[6] = {
@@ -426,24 +344,20 @@ static int ble_property_t_struct_array_get(char *data, uint16_t len)
 	return ble_user_property_struct_array_get(BLE_QIOT_PROPERTY_ID_T_STRUCT_ARRAY, data, len, sg_ble_t_struct_array_property_array, 6);
 }
 
-static int ble_property_t_str_array_set(const char *data, uint16_t len, uint16_t index)
+static void ble_property_t_str_array_set(const char *val, int len, int index)
 {
-	char tmp_str[128] = "";//copy the actual length of the text
-	memcpy(tmp_str, data, 1);
-	ble_qiot_log_d("set id t_str_array string value %s", data);
-	return 0;
+	ble_qiot_log_d("set id t_str_array string value %s", val);
+	return;
 }
 
-static int ble_property_t_str_array_get( char *data, uint16_t len, uint16_t index)
+static const char *ble_property_t_str_array_get(int index)
 {
-	char tmp_str[2] = "a";
-	memcpy(data, tmp_str, strlen(tmp_str));
-	ble_qiot_log_d("get id t_str_array string value %s", data);
-	return strlen(tmp_str);
+	const char *tmp_str = "ticos";
+	ble_qiot_log_d("get id t_str_array string value %s", tmp_str);
+	return tmp_str;
 }
 
-//ble_property_t sg_ble_property_array[12] = {
-ble_property_t sg_ble_property_array[1] = {
+ble_property_t sg_ble_property_array[12] = {
 	{ble_property_t_bool_set, ble_property_t_bool_get, 0, BLE_QIOT_DATA_TYPE_BOOL, 1},
 	{ble_property_t_int_set, ble_property_t_int_get, 0, BLE_QIOT_DATA_TYPE_INT, 1},
 	{ble_property_t_str_set, ble_property_t_str_get, 0, BLE_QIOT_DATA_TYPE_STRING, 1},
@@ -459,55 +373,46 @@ ble_property_t sg_ble_property_array[1] = {
 };
 
 
-static int ble_event_get_t_event_t_bool_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_bool_get()
 {
 	uint8_t tmp_bool = 1;
-	data[0] = tmp_bool;
-	ble_qiot_log_d("get id t_bool bool value %02x", data[0]);
-	return sizeof(uint8_t);
+	ble_qiot_log_d("get id t_bool bool value %02x", tmp_bool);
+	return tmp_bool;
 }
 
-static int ble_event_get_t_event_t_int_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_int_get()
 {
-	int tmp_int = 1;
-	tmp_int = HTONL(tmp_int);
-	memcpy(data, &tmp_int, sizeof(int));
-	ble_qiot_log_d("get id t_int int value %d", 12345678);
-	return sizeof(int);
+	uint32_t tmp_int = 1;
+	ble_qiot_log_d("get id t_int int value %d", tmp_int);
+	return tmp_int;
 }
 
-static int ble_event_get_t_event_t_str_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_str_get()
 {
-	char tmp_str[2] = "a";
-	memcpy(data, tmp_str, strlen(tmp_str));
-	ble_qiot_log_d("get id t_str string value %s", data);
-	return strlen(tmp_str);
+	const char *tmp_str = "ticos";
+	ble_qiot_log_d("get id t_str string value %s", tmp_str);
+	return tmp_str;
 }
 
-static int ble_event_get_t_event_t_enum_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_enum_get()
 {
 	uint16_t tmp_enum = 0;
-	tmp_enum = HTONS(tmp_enum);
-	memcpy(data, &tmp_enum, sizeof(uint16_t));
-	ble_qiot_log_d("get id t_enum int value %d", 1234);
-	return sizeof(uint16_t);
+	ble_qiot_log_d("get id t_enum int value %d", tmp_enum);
+	return tmp_enum;
 }
 
-static int ble_event_get_t_event_t_float_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_float_get()
 {
 	float tmp_float = 1.23456;
-	memcpy(data, &tmp_float, sizeof(float));
 	ble_qiot_log_d("get id t_float float value %f", tmp_float);
-	return sizeof(float);
+	return tmp_float;
 }
 
-static int ble_event_get_t_event_t_time_get( char *data, uint16_t len)
+static int ble_event_get_t_event_t_time_get()
 {
 	uint32_t tmp_time = 12345678;
-	tmp_time = HTONL(tmp_time);
-	memcpy(data, &tmp_time, sizeof(uint32_t));
-	ble_qiot_log_d("get id t_time time value %d", 12345678);
-	return sizeof(uint32_t);
+	ble_qiot_log_d("get id t_time time value %d", tmp_time);
+	return tmp_time;
 }
 
 static ble_event_param sg_ble_event_t_event_array[6] = {

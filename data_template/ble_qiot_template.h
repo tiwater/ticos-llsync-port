@@ -16,36 +16,37 @@ extern "C"{
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // data type in template, corresponding to type in json file
 enum {
-  BLE_QIOT_DATA_TYPE_BOOL = 0,
-  BLE_QIOT_DATA_TYPE_INT,
-  BLE_QIOT_DATA_TYPE_STRING,
-  BLE_QIOT_DATA_TYPE_FLOAT,
-  BLE_QIOT_DATA_TYPE_ENUM,
-  BLE_QIOT_DATA_TYPE_TIME,
-  BLE_QIOT_DATA_TYPE_STRUCT,
-  BLE_QIOT_DATA_TYPE_ARRAY,
-  BLE_QIOT_DATA_TYPE_BUTT,
+	BLE_QIOT_DATA_TYPE_BOOL = 0,
+	BLE_QIOT_DATA_TYPE_INT,
+	BLE_QIOT_DATA_TYPE_STRING,
+	BLE_QIOT_DATA_TYPE_FLOAT,
+	BLE_QIOT_DATA_TYPE_ENUM,
+	BLE_QIOT_DATA_TYPE_TIME,
+	BLE_QIOT_DATA_TYPE_STRUCT,
+	BLE_QIOT_DATA_TYPE_ARRAY,
+	BLE_QIOT_DATA_TYPE_BUTT,
 };
 
 #define BLE_QIOT_ARRAY_INT_BIT_MASK     (1 << 4)
 #define BLE_QIOT_ARRAY_STRING_BIT_MASK  (1 << 5)
 #define BLE_QIOT_ARRAY_FLOAT_BIT_MASK   (1 << 6)
 #define BLE_QIOT_ARRAY_STRUCT_BIT_MASK  (1 << 7)
-// message type, reference data template
+// message type, reference data template 
 enum {
-  BLE_QIOT_PROPERTY_AUTH_RW = 0,
-  BLE_QIOT_PROPERTY_AUTH_READ,
-  BLE_QIOT_PROPERTY_AUTH_BUTT,
+	BLE_QIOT_PROPERTY_AUTH_RW = 0,
+	BLE_QIOT_PROPERTY_AUTH_READ,
+	BLE_QIOT_PROPERTY_AUTH_BUTT,
 };
 
 // define message flow direction
 enum {
-  BLE_QIOT_EFFECT_REQUEST = 0,
-  BLE_QIOT_EFFECT_REPLY,
-  BLE_QIOT_EFFECT_BUTT,
+	BLE_QIOT_EFFECT_REQUEST = 0,
+	BLE_QIOT_EFFECT_REPLY,
+	BLE_QIOT_EFFECT_BUTT,
 };
 
 #define	BLE_QIOT_PACKAGE_MSG_HEAD(_TYPE, _REPLY, _ID)	(((_TYPE) << 6) | (((_REPLY) == BLE_QIOT_EFFECT_REPLY) << 5) | ((_ID) & 0X1F))
@@ -53,29 +54,29 @@ enum {
 
 // define tlv struct
 typedef struct{	uint8_t type;
-  uint8_t id;
-  uint16_t len;
-  char *val;
+	uint8_t id;
+	uint16_t len;
+	char *val;
 }e_ble_tlv;
 
 
-#define	BLE_QIOT_INCLUDE_PROPERTY
+#define	BLE_QIOT_INCLUDE_PROPERTY 
 
 // define property id
 enum {
-  BLE_QIOT_PROPERTY_ID_T_BOOL,
-  BLE_QIOT_PROPERTY_ID_T_INT,
-  BLE_QIOT_PROPERTY_ID_T_STR,
-  BLE_QIOT_PROPERTY_ID_T_FLOAT,
-  BLE_QIOT_PROPERTY_ID_T_ENUM,
-  BLE_QIOT_PROPERTY_ID_T_TIME,
-  BLE_QIOT_PROPERTY_ID_T_STRUCT,
-  BLE_QIOT_PROPERTY_ID_T_STRUCT2,
-  BLE_QIOT_PROPERTY_ID_T_INT_ARRAY,
-  BLE_QIOT_PROPERTY_ID_T_FLOT_ARRAY,
-  BLE_QIOT_PROPERTY_ID_T_STRUCT_ARRAY,
-  BLE_QIOT_PROPERTY_ID_T_STR_ARRAY,
-  BLE_QIOT_PROPERTY_ID_BUTT,
+	BLE_QIOT_PROPERTY_ID_T_BOOL,
+	BLE_QIOT_PROPERTY_ID_T_INT,
+	BLE_QIOT_PROPERTY_ID_T_STR,
+	BLE_QIOT_PROPERTY_ID_T_FLOAT,
+	BLE_QIOT_PROPERTY_ID_T_ENUM,
+	BLE_QIOT_PROPERTY_ID_T_TIME,
+	BLE_QIOT_PROPERTY_ID_T_STRUCT,
+	BLE_QIOT_PROPERTY_ID_T_STRUCT2,
+	BLE_QIOT_PROPERTY_ID_T_INT_ARRAY,
+	BLE_QIOT_PROPERTY_ID_T_FLOT_ARRAY,
+	BLE_QIOT_PROPERTY_ID_T_STRUCT_ARRAY,
+	BLE_QIOT_PROPERTY_ID_T_STR_ARRAY,
+	BLE_QIOT_PROPERTY_ID_BUTT,
 };
 
 // define t_int attributes
@@ -93,10 +94,10 @@ enum {
 #define BLE_QIOT_PROPERTY_T_FLOAT_STEP	(1)
 // define t_enum enum
 enum {
-  BLE_QIOT_PROPERTY_T_ENUM_RED = 0,
-  BLE_QIOT_PROPERTY_T_ENUM_GREEN = 1,
-  BLE_QIOT_PROPERTY_T_ENUM_BLUE = 2,
-  BLE_QIOT_PROPERTY_T_ENUM_BUTT,
+	BLE_QIOT_PROPERTY_T_ENUM_RED = 0,
+	BLE_QIOT_PROPERTY_T_ENUM_GREEN = 1,
+	BLE_QIOT_PROPERTY_T_ENUM_BLUE = 2,
+	BLE_QIOT_PROPERTY_T_ENUM_BUTT,
 };
 
 // define t_struct s_int attributes
@@ -114,40 +115,40 @@ enum {
 #define BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_FLOAT_STEP	(1)
 // define t_struct s_enum enum
 enum {
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_R = 0,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_G = 1,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_B = 2,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_BUTT,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_R = 0,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_G = 1,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_B = 2,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_S_ENUM_BUTT,
 };
 
 // define t_struct property id
 enum {
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_BOOL,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_INT,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_STR,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_FLOAT,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_ENUM,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_TIME,
-  BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_BUTT,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_BOOL,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_INT,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_STR,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_FLOAT,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_ENUM,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_S_TIME,
+	BLE_QIOT_STRUCT_T_STRUCT_PROPERTY_ID_BUTT,
 };
 
 typedef struct{
-  unsigned char m_s_bool;
-  int32_t m_s_int;
-  char m_s_str[2048];
-  float m_s_float;
-  uint16_t m_s_enum;
-  uint32_t m_s_time;
+	bool m_s_bool;
+	int32_t m_s_int;
+	char m_s_str[2048];
+	float m_s_float;
+	uint16_t m_s_enum;
+	uint32_t m_s_time;
 }struct_property_t_struct;
 
 // define t_struct2 property id
 enum {
-  BLE_QIOT_STRUCT_T_STRUCT2_PROPERTY_ID_S_BOOL,
-  BLE_QIOT_STRUCT_T_STRUCT2_PROPERTY_ID_BUTT,
+	BLE_QIOT_STRUCT_T_STRUCT2_PROPERTY_ID_S_BOOL,
+	BLE_QIOT_STRUCT_T_STRUCT2_PROPERTY_ID_BUTT,
 };
 
 typedef struct{
-  unsigned char m_s_bool;
+	bool m_s_bool;
 }struct_property_t_struct2;
 
 // define t_int_array attributes
@@ -158,11 +159,11 @@ typedef struct{
 //define the actual size of array
 #define BLE_QIOT_PROPERTY_T_INT_ARRAY_SIZE_MAX	(3)
 #if BLE_QIOT_PROPERTY_T_INT_ARRAY_SIZE_MAX == 0
-#error "please define t_int_array array size first"
+	#error "please define t_int_array array size first"
 #endif
 typedef struct{
-  int32_t m_int_arr[BLE_QIOT_PROPERTY_T_INT_ARRAY_SIZE_MAX];
-  uint16_t m_arr_size;
+	int32_t m_int_arr[BLE_QIOT_PROPERTY_T_INT_ARRAY_SIZE_MAX];
+	uint16_t m_arr_size;
 }array_struct_t_int_array;
 
 // define t_flot_array attributes
@@ -173,11 +174,11 @@ typedef struct{
 //define the actual size of array
 #define BLE_QIOT_PROPERTY_T_FLOT_ARRAY_SIZE_MAX	(3)
 #if BLE_QIOT_PROPERTY_T_FLOT_ARRAY_SIZE_MAX == 0
-#error "please define t_flot_array array size first"
+	#error "please define t_flot_array array size first"
 #endif
 typedef struct{
-  float m_float_arr[BLE_QIOT_PROPERTY_T_FLOT_ARRAY_SIZE_MAX];
-  uint16_t m_arr_size;
+	float m_float_arr[BLE_QIOT_PROPERTY_T_FLOT_ARRAY_SIZE_MAX];
+	uint16_t m_arr_size;
 }array_struct_t_flot_array;
 
 // define t_struct_array t_int attributes
@@ -195,39 +196,39 @@ typedef struct{
 #define BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_FLOAT_STEP	(1)
 // define t_struct_array t_enum enum
 enum {
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_TEST_0 = 0,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_TEST_1 = 1,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_BUTT,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_TEST_0 = 0,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_TEST_1 = 1,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_T_ENUM_BUTT,
 };
 
 // define t_struct_array property id
 enum {
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_BOOL,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_INT,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_STR,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_FLOAT,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_TIME,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_ENUM,
-  BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_BUTT,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_BOOL,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_INT,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_STR,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_FLOAT,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_TIME,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_T_ENUM,
+	BLE_QIOT_STRUCT_T_STRUCT_ARRAY_PROPERTY_ID_BUTT,
 };
 
 typedef struct{
-  unsigned char m_t_bool;
-  int32_t m_t_int;
-  char m_t_str[32];
-  float m_t_float;
-  uint32_t m_t_time;
-  uint16_t m_t_enum;
+	bool m_t_bool;
+	int32_t m_t_int;
+	char m_t_str[32];
+	float m_t_float;
+	uint32_t m_t_time;
+	uint16_t m_t_enum;
 }struct_property_t_struct_array;
 
 //define the actual size of array
 #define BLE_QIOT_PROPERTY_T_STRUCT_ARRAY_SIZE_MAX	(3)
 #if BLE_QIOT_PROPERTY_T_STRUCT_ARRAY_SIZE_MAX == 0
-#error "please define t_struct_array array size first"
+	#error "please define t_struct_array array size first"
 #endif
 typedef struct{
-  struct_property_t_struct_array m_struct_arr[BLE_QIOT_PROPERTY_T_STRUCT_ARRAY_SIZE_MAX];
-  uint16_t m_arr_size;
+	struct_property_t_struct_array m_struct_arr[BLE_QIOT_PROPERTY_T_STRUCT_ARRAY_SIZE_MAX];
+	uint16_t m_arr_size;
 }array_struct_t_struct_array;
 
 // define t_str_array length limit
@@ -236,11 +237,11 @@ typedef struct{
 //define the actual size of array
 #define BLE_QIOT_PROPERTY_T_STR_ARRAY_SIZE_MAX	(3)
 #if BLE_QIOT_PROPERTY_T_STR_ARRAY_SIZE_MAX == 0
-#error "please define t_str_array array size first"
+	#error "please define t_str_array array size first"
 #endif
 typedef struct{
-  char m_str_arr[BLE_QIOT_PROPERTY_T_STR_ARRAY_SIZE_MAX][32];
-  uint16_t m_arr_size;
+	char m_str_arr[BLE_QIOT_PROPERTY_T_STR_ARRAY_SIZE_MAX][32];
+	uint16_t m_arr_size;
 }array_struct_t_str_array;
 
 // define property set handle return 0 if success, other is error
@@ -251,33 +252,33 @@ typedef int (*property_set_cb)(const char *data, uint16_t len);
 typedef int (*property_get_cb)(char *buf, uint16_t buf_len);
 // each property have a struct ble_property_t, make up a array named sg_ble_property_array
 typedef struct{
-  property_set_cb set_cb;	//set callback
-  property_get_cb get_cb;	//get callback
-  uint8_t authority;	//property authority
-  uint8_t type;	//data type
-  uint16_t elem_num;
+	void *set_cb;	//set callback
+	void *get_cb;	//get callback
+	uint8_t authority;	//property authority
+	uint8_t type;	//data type
+	uint16_t elem_num;
 }ble_property_t;
 typedef int (*property_array_set_cb)(const char *data, uint16_t len, uint16_t index);
 typedef int (*property_array_get_cb)(char *buf, uint16_t buf_len, uint16_t index);
 
 
-#define	BLE_QIOT_INCLUDE_EVENT
+#define	BLE_QIOT_INCLUDE_EVENT 
 
 // define event id
 enum {
-  BLE_QIOT_EVENT_ID_T_EVENT,
-  BLE_QIOT_EVENT_ID_BUTT,
+	BLE_QIOT_EVENT_ID_T_EVENT,
+	BLE_QIOT_EVENT_ID_BUTT,
 };
 
 // define event t_event param id
 enum {
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_BOOL,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_INT,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_STR,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_ENUM,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_FLOAT,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_TIME,
-  BLE_QIOT_EVENT_T_EVENT_PARAM_ID_BUTT,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_BOOL,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_INT,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_STR,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_ENUM,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_FLOAT,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_T_TIME,
+	BLE_QIOT_EVENT_T_EVENT_PARAM_ID_BUTT,
 };
 
 // define t_event t_int attributes
@@ -290,10 +291,10 @@ enum {
 #define BLE_QIOT_EVENT_T_EVENT_T_STR_LEN_MAX	(128)
 // define t_event t_enum enum
 enum {
-  BLE_QIOT_EVENT_T_EVENT_T_ENUM_R = 0,
-  BLE_QIOT_EVENT_T_EVENT_T_ENUM_G = 1,
-  BLE_QIOT_EVENT_T_EVENT_T_ENUM_B = 2,
-  BLE_QIOT_EVENT_T_EVENT_T_ENUM_BUTT,
+	BLE_QIOT_EVENT_T_EVENT_T_ENUM_R = 0,
+	BLE_QIOT_EVENT_T_EVENT_T_ENUM_G = 1,
+	BLE_QIOT_EVENT_T_EVENT_T_ENUM_B = 2,
+	BLE_QIOT_EVENT_T_EVENT_T_ENUM_BUTT,
 };
 
 // define t_event t_float attributes
@@ -306,33 +307,33 @@ enum {
 typedef int (*event_get_cb)(char *buf, uint16_t buf_len);
 // each param have a struct ble_event_param, make up a array for the event
 typedef struct{
-  event_get_cb get_cb;	//get param data callback
-  uint8_t type;	//param type
+	event_get_cb get_cb;	//get param data callback
+	uint8_t type;	//param type
 }ble_event_param;
 // a array named sg_ble_event_array is composed by all the event array
 typedef struct{
-  ble_event_param *event_array;	//array of params data
-  uint8_t array_size;	//array size
+	ble_event_param *event_array;	//array of params data
+	uint8_t array_size;	//array size
 }ble_event_t;
 
 
-#define	BLE_QIOT_INCLUDE_ACTION
+#define	BLE_QIOT_INCLUDE_ACTION 
 
 // define action id
 enum {
-  BLE_QIOT_ACTION_ID_T_ACTION,
-  BLE_QIOT_ACTION_ID_BUTT,
+	BLE_QIOT_ACTION_ID_T_ACTION,
+	BLE_QIOT_ACTION_ID_BUTT,
 };
 
-// define action t_action input id
+// define action t_action input id 
 enum {
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_BOOL,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_INT,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_STR,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_FLOAT,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_ENUM,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_TIME,
-  BLE_QIOT_ACTION_T_ACTION_INPUT_ID_BUTT,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_BOOL,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_INT,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_STR,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_FLOAT,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_ENUM,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_IN_TIME,
+	BLE_QIOT_ACTION_T_ACTION_INPUT_ID_BUTT,
 };
 
 // define t_action in_int attributes
@@ -350,21 +351,21 @@ enum {
 #define BLE_QIOT_ACTION_INPUT_T_ACTION_IN_FLOAT_STEP	(1)
 // define t_action in_enum enum
 enum {
-  BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_R = 0,
-  BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_G = 1,
-  BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_B = 2,
-  BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_BUTT,
+	BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_R = 0,
+	BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_G = 1,
+	BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_B = 2,
+	BLE_QIOT_ACTION_INPUT_T_ACTION_IN_ENUM_BUTT,
 };
 
-// define action t_action output id
+// define action t_action output id 
 enum {
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_BOOL,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_INT,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_STR,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_FLOAT,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_ENUM,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_TIME,
-  BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_BUTT,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_BOOL,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_INT,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_STR,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_FLOAT,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_ENUM,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_OUT_TIME,
+	BLE_QIOT_ACTION_T_ACTION_OUTPUT_ID_BUTT,
 };
 
 // define t_action out_int attributes
@@ -382,10 +383,10 @@ enum {
 #define BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_FLOAT_STEP	(1)
 // define t_action out_enum enum
 enum {
-  BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_R = 0,
-  BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_G = 1,
-  BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_B = 2,
-  BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_BUTT,
+	BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_R = 0,
+	BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_G = 1,
+	BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_B = 2,
+	BLE_QIOT_ACTION_OUTPUT_T_ACTION_OUT_ENUM_BUTT,
 };
 
 #define BLE_QIOT_ACTION_INPUT_ID_BUTT	6
@@ -400,12 +401,12 @@ typedef int (*action_input_handle)(e_ble_tlv *input_param_array, uint8_t input_a
 typedef int (*action_output_handle)(uint8_t output_id, char *buf, uint16_t buf_len);
 // each action have a struct ble_action_t, make up a array named sg_ble_action_array
 typedef struct{
-  action_input_handle input_cb;	//handle input data
-  action_output_handle output_cb;	// get output data in the callback
-  uint8_t *input_type_array;	//type array for input id
-  uint8_t *output_type_array;	//type array for output id
-  uint8_t input_id_size;	//numbers of input id
-  uint8_t output_id_size;	//numbers of output id
+	action_input_handle input_cb;	//handle input data
+	action_output_handle output_cb;	// get output data in the callback
+	uint8_t *input_type_array;	//type array for input id
+	uint8_t *output_type_array;	//type array for output id
+	uint8_t input_id_size;	//numbers of input id
+	uint8_t output_id_size;	//numbers of output id
 }ble_action_t;
 
 // property module

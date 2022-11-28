@@ -105,88 +105,86 @@ class iot_object:
     def get_function_name(self, ctx_format, id, suffix):
         return ctx_format + "{}_{}".format(id, suffix)
 
-    def get_function_param(self, param_num, const=""):
-        if param_num == 2:
-            return "({} char *data, uint16_t len)".format(const)
-        if param_num == 3:
-            return "({} char *data, uint16_t len, uint16_t index)".format(const)
-        return ""
+    def get_function_param(self, param_num, func, type, const=""):
+        if func == "get":
+            if param_num == 2:
+                return "()"
+            if param_num == 3:
+                return "(int index)"
+        elif func == "set":
+            tmp = ""
+            if type == TEMPLATE_CONSTANTS.BOOL:
+                tmp = "(uint8_t val"
+            elif type == TEMPLATE_CONSTANTS.INT:
+                tmp = "(uint32_t val"
+            elif type == TEMPLATE_CONSTANTS.STRING:
+                tmp = "(const char *val, int len"
+            elif type == TEMPLATE_CONSTANTS.FLOAT:
+                tmp = "(float val"
+            elif type == TEMPLATE_CONSTANTS.ENUM:
+                tmp = "(uint16_t val"
+            elif type == TEMPLATE_CONSTANTS.TIMESTAMP:
+                tmp = "(uint32_t val"
+            elif type == TEMPLATE_CONSTANTS.STRUCT:
+                tmp = "(const char *val, int len"
+            elif type == TEMPLATE_CONSTANTS.ARRAY:
+                tmp = "(const char *val, int len"
+            if param_num == 2:
+                tmp += ")"
+            if param_num == 3:
+                tmp += ", int index)"
+            return tmp
 
     def get_value_function(self, ctx_format, id, type, param_num=2):
         ctx = "\n"
-        ctx += self.get_function_name(ctx_format, id, "get") + self.get_function_param(param_num)
+        ctx += self.get_function_name(ctx_format, id, "get") + self.get_function_param(param_num, "get", type)
         if type == TEMPLATE_CONSTANTS.BOOL:
             ctx += "\n{{\n\tuint8_t tmp_bool = 1;" \
-                   "\n\tdata[0] = tmp_bool;" \
-                   "\n\tble_qiot_log_d(\"get id {} bool value %02x\", data[0]);" \
-                   "\n\treturn sizeof(uint8_t);\n}}\n".format(id)
+                   "\n\tble_qiot_log_d(\"get id {} bool value %02x\", tmp_bool);" \
+                   "\n\treturn tmp_bool;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.INT:
-            ctx += "\n{{\n\tint tmp_int = 1;" \
-                   "\n\ttmp_int = HTONL(tmp_int);" \
-                   "\n\tmemcpy(data, &tmp_int, sizeof(int));" \
-                   "\n\tble_qiot_log_d(\"get id {} int value %d\", 12345678);" \
-                   "\n\treturn sizeof(int);\n}}\n".format(id)
+            ctx += "\n{{\n\tuint32_t tmp_int = 1;" \
+                   "\n\tble_qiot_log_d(\"get id {} int value %d\", tmp_int);" \
+                   "\n\treturn tmp_int;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.STRING:
-            ctx += "\n{{\n\tchar tmp_str[2] = \"a\";" \
-                   "\n\tmemcpy(data, tmp_str, strlen(tmp_str));" \
-                   "\n\tble_qiot_log_d(\"get id {} string value %s\", data);" \
-                   "\n\treturn strlen(tmp_str);\n}}\n".format(id)
+            ctx += "\n{{\n\tconst char *tmp_str = \"ticos\";" \
+                   "\n\tble_qiot_log_d(\"get id {} string value %s\", tmp_str);" \
+                   "\n\treturn tmp_str;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.FLOAT:
             ctx += "\n{{\n\tfloat tmp_float = 1.23456;" \
-                   "\n\tmemcpy(data, &tmp_float, sizeof(float));" \
                    "\n\tble_qiot_log_d(\"get id {} float value %f\", tmp_float);" \
-                   "\n\treturn sizeof(float);\n}}\n".format(id)
+                   "\n\treturn tmp_float;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.ENUM:
             ctx += "\n{{\n\tuint16_t tmp_enum = 0;" \
-                   "\n\ttmp_enum = HTONS(tmp_enum);" \
-                   "\n\tmemcpy(data, &tmp_enum, sizeof(uint16_t));" \
-                   "\n\tble_qiot_log_d(\"get id {} int value %d\", 1234);" \
-                   "\n\treturn sizeof(uint16_t);\n}}\n".format(id)
+                   "\n\tble_qiot_log_d(\"get id {} int value %d\", tmp_enum);" \
+                   "\n\treturn tmp_enum;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.TIMESTAMP:
             ctx += "\n{{\n\tuint32_t tmp_time = 12345678;" \
-                   "\n\ttmp_time = HTONL(tmp_time);" \
-                   "\n\tmemcpy(data, &tmp_time, sizeof(uint32_t));" \
-                   "\n\tble_qiot_log_d(\"get id {} time value %d\", 12345678);" \
-                   "\n\treturn sizeof(uint32_t);\n}}\n".format(id)
+                   "\n\tble_qiot_log_d(\"get id {} time value %d\", tmp_time);" \
+                   "\n\treturn tmp_time;\n}}\n".format(id)
         return ctx
 
     def set_value_function(self, ctx_format, id, type, param_num=2):
         ctx = "\n"
-        ctx += self.get_function_name(ctx_format, id, "set") + self.get_function_param(param_num, "const")
+        ctx += self.get_function_name(ctx_format, id, "set") + self.get_function_param(param_num, "set", type, "const")
         if type == TEMPLATE_CONSTANTS.BOOL:
-            ctx += "\n{{\n\tuint8_t tmp_bool = 0;" \
-                   "\n\ttmp_bool = data[0];" \
-                   "\n\tble_qiot_log_d(\"set id {} bool value %02x\", data[0]);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} bool value %02x\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.INT:
-            ctx += "\n{{\n\tint tmp_int = 0;" \
-                   "\n\tmemcpy(&tmp_int, data, sizeof(int));" \
-                   "\n\ttmp_int = NTOHL(tmp_int);" \
-                   "\n\tble_qiot_log_d(\"set id {} int value %d\", tmp_int);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} int value %d\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.STRING:
-            ctx += "\n{{\n\tchar tmp_str[128] = \"\";" \
-                   "//copy the actual length of the text" \
-                   "\n\tmemcpy(tmp_str, data, 1);" \
-                   "\n\tble_qiot_log_d(\"set id {} string value %s\", data);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} string value %s\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.FLOAT:
-            ctx += "\n{{\n\tfloat tmp_float = 0;" \
-                   "\n\tmemcpy(&tmp_float, data, sizeof(float));" \
-                   "\n\tble_qiot_log_d(\"set id {} float value %f\", tmp_float);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} float value %f\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.ENUM:
-            ctx += "\n{{\n\tuint16_t tmp_enum = 0;" \
-                   "\n\tmemcpy(&tmp_enum, data, sizeof(uint16_t));" \
-                   "\n\ttmp_enum = NTOHS(tmp_enum);" \
-                   "\n\tble_qiot_log_d(\"set id {} int value %d\", tmp_enum);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} int value %d\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         elif type == TEMPLATE_CONSTANTS.TIMESTAMP:
-            ctx += "\n{{\n\tuint32_t tmp_time = 0;" \
-                   "\n\tmemcpy(&tmp_time, data, sizeof(uint32_t));" \
-                   "\n\ttmp_time = NTOHL(tmp_time);" \
-                   "\n\tble_qiot_log_d(\"set id {} time value %d\", tmp_time);" \
-                   "\n\treturn 0;\n}}\n".format(id)
+            ctx += "\n{{\n\tble_qiot_log_d(\"set id {} time value %d\", val);" \
+                   "\n\treturn;\n}}\n".format(id)
         return ctx
 
 
@@ -198,15 +196,15 @@ class iot_bool(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.BOOL)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.BOOL, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.BOOL, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.BOOL, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.BOOL)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.BOOL)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.BOOL)
         return ctx
 
@@ -243,15 +241,15 @@ class iot_int(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.INT)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.INT, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.INT, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.INT, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.INT)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.INT)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.INT)
         return ctx
 
@@ -281,15 +279,15 @@ class iot_string(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.STRING)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.STRING, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.STRING, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.STRING, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.STRING)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.STRING)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.STRING)
         return ctx
 
@@ -304,15 +302,15 @@ class iot_float(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.FLOAT)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.FLOAT, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.FLOAT, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.FLOAT, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.FLOAT)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.FLOAT)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.FLOAT)
         return ctx
 
@@ -345,15 +343,15 @@ class iot_enum(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.ENUM)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.ENUM, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.ENUM, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.ENUM, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.ENUM)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.ENUM)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.ENUM)
         return ctx
 
@@ -365,15 +363,15 @@ class iot_timestamp(iot_object):
     def get_source_get_function(self, ctx_format, id):
         return self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.TIMESTAMP)
 
-    def get_source_array_data(self, ctx_format, id):
+    def get_source_array_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.TIMESTAMP, 3)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.TIMESTAMP, 3)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.TIMESTAMP, 3)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
-        ctx += self.set_value_function(ctx_format, id, TEMPLATE_CONSTANTS.TIMESTAMP)
+        ctx += self.set_value_function(set_format, id, TEMPLATE_CONSTANTS.TIMESTAMP)
         ctx += self.get_value_function(ctx_format, id, TEMPLATE_CONSTANTS.TIMESTAMP)
         return ctx
 
@@ -476,12 +474,31 @@ class iot_struct(iot_object):
         ctx += "},"
         return ctx
 
-    def get_source_data_for_array(self, ctx_format, id, arr_size):
+    def get_source_data_for_array(self, ctx_format, id, arr_size, set_format):
         ctx = ""
+        set_format = set_format + "{}_".format(id)
 
-        ctx_format = "static int ble_property_{}_".format(id)
+        #ctx_format = "static int ble_property_{}_".format(id)
         for member in self.struct_fields:
-            ctx += member.value.get_source_array_data(ctx_format, member.get_struct_member_id())
+            if isinstance(member.value, iot_bool):
+                ctx_format = "static uint8_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_int):
+                ctx_format = "static uint32_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_string):
+                ctx_format = "static const char *ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_float):
+                ctx_format = "static float ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_enum):
+                ctx_format = "static uint16_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_timestamp):
+                ctx_format = "static uint32_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_struct):
+                print("error iot struct")
+            elif isinstance(member.value, iot_array):
+                print("error iot array")
+            else:
+                print("error unkonw type")
+            ctx += member.value.get_source_array_data(ctx_format, member.get_struct_member_id(), set_format)
 
         ctx += "\nstatic ble_property_t sg_ble_{}_property_array[{}] = {{".format(id, self.struct_fields_num)
         for member in self.struct_fields:
@@ -501,12 +518,30 @@ class iot_struct(iot_object):
         ctx += "\n}\n"
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
+        set_format = set_format + "{}_".format(id)
 
-        ctx_format = "static int ble_property_{}_".format(id)
         for member in self.struct_fields:
-            ctx += member.value.get_source_data(ctx_format, member.get_struct_member_id())
+            if isinstance(member.value, iot_bool):
+                ctx_format = "static uint8_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_int):
+                ctx_format = "static uint32_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_string):
+                ctx_format = "static const char *ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_float):
+                ctx_format = "static float ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_enum):
+                ctx_format = "static uint16_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_timestamp):
+                ctx_format = "static uint32_t ble_property_{}_".format(id)
+            elif isinstance(member.value, iot_struct):
+                print("error iot struct")
+            elif isinstance(member.value, iot_array):
+                print("error iot array")
+            else:
+                print("error unkonw type")
+            ctx += member.value.get_source_data(ctx_format, member.get_struct_member_id(), set_format)
 
         ctx += "\nstatic ble_property_t sg_ble_{}_property_array[{}] = {{".format(id, self.struct_fields_num)
         for member in self.struct_fields:
@@ -583,13 +618,25 @@ class iot_array(iot_object):
         ctx += self.get_array_obj_define(id, sub_id)
         return ctx
 
-    def get_source_data(self, ctx_format, id):
+    def get_source_data(self, ctx_format, id, set_format):
         ctx = ""
         if self.type != TEMPLATE_CONSTANTS.STRUCT:
-            ctx += self.value.get_source_array_data(ctx_format, id)
+            if self.type == TEMPLATE_CONSTANTS.BOOL:
+                ctx_format = "static uint8_t ble_property_"
+            elif self.type == TEMPLATE_CONSTANTS.INT:
+                ctx_format = "static uint32_t ble_property_"
+            elif self.type == TEMPLATE_CONSTANTS.STRING:
+                ctx_format = "static const char *ble_property_"
+            elif self.type == TEMPLATE_CONSTANTS.FLOAT:
+                ctx_format = "static float ble_property_"
+            elif self.type == TEMPLATE_CONSTANTS.ENUM:
+                ctx_format = "static uint16_t ble_property_"
+            elif self.type == TEMPLATE_CONSTANTS.TIMESTAMP:
+                ctx_format = "static uint32_t ble_property_"
+            ctx += self.value.get_source_array_data(ctx_format, id, set_format)
         else:
             arr_size_macro = "BLE_QIOT_PROPERTY_{}_SIZE_MAX".format(id.upper())
-            ctx += self.value.get_source_data_for_array(ctx_format, id, arr_size_macro)
+            ctx += self.value.get_source_data_for_array(ctx_format, id, arr_size_macro, set_format)
         return ctx
 
 
@@ -631,8 +678,23 @@ class iot_property(iot_object):
         return self.value.get_header_data(ctx_format, id=self.id)
 
     def get_property_source(self):
-        ctx_format = "static int ble_property_"
-        return self.value.get_source_data(ctx_format, self.id)
+        if self.type == TEMPLATE_CONSTANTS.BOOL:
+            ctx_format = "static uint8_t ble_property_"
+        elif self.type == TEMPLATE_CONSTANTS.INT:
+            ctx_format = "static uint32_t ble_property_"
+        elif self.type == TEMPLATE_CONSTANTS.STRING:
+            ctx_format = "static const char *ble_property_"
+        elif self.type == TEMPLATE_CONSTANTS.FLOAT:
+            ctx_format = "static float ble_property_"
+        elif self.type == TEMPLATE_CONSTANTS.ENUM:
+            ctx_format = "static uint16_t ble_property_"
+        elif self.type == TEMPLATE_CONSTANTS.TIMESTAMP:
+            ctx_format = "static uint32_t ble_property_"
+        else:
+            ctx_format = "static int ble_property_"
+
+        set_format = "static void ble_property_"
+        return self.value.get_source_data(ctx_format, self.id, set_format)
 
 
 class event_action_member(iot_object):
@@ -910,8 +972,8 @@ class iot_parse_dt:
                "typedef int (*property_get_cb)(char *buf, uint16_t buf_len);\n" \
                "// each property have a struct ble_property_t, make up a array named sg_ble_property_array\n" \
                "typedef struct{\n" \
-               "\tproperty_set_cb set_cb;	//set callback\n" \
-               "\tproperty_get_cb get_cb;	//get callback\n" \
+               "\tvoid *set_cb;	//set callback\n" \
+               "\tvoid *get_cb;	//get callback\n" \
                "\tuint8_t authority;	//property authority\n" \
                "\tuint8_t type;	//data type\n" \
                "\tuint16_t elem_num;\n" \
