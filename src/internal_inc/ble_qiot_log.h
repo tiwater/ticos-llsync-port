@@ -36,12 +36,12 @@ typedef enum {
 // log new line feed type config
 #define LOG_LINE_FEED_TYPE LINE_CRLF
 
-extern e_ble_qiot_log_level g_log_level;
+extern e_ble_qiot_log_level ll_log_level;
 
 #ifndef ble_qiot_log_d
 #define ble_qiot_log_d(fmt, args...)                                       \
     do {                                                                   \
-        if (g_log_level < BLE_QIOT_LOG_LEVEL_DEBUG)                        \
+        if (ll_log_level < BLE_QIOT_LOG_LEVEL_DEBUG)                        \
             break;                                                         \
         BLE_QIOT_LOG_PRINT("qiot debug: " fmt LOG_LINE_FEED_TYPE, ##args); \
     } while (0)
@@ -50,7 +50,7 @@ extern e_ble_qiot_log_level g_log_level;
 #ifndef ble_qiot_log_i
 #define ble_qiot_log_i(fmt, args...)                                      \
     do {                                                                  \
-        if (g_log_level < BLE_QIOT_LOG_LEVEL_INFO)                        \
+        if (ll_log_level < BLE_QIOT_LOG_LEVEL_INFO)                        \
             break;                                                        \
         BLE_QIOT_LOG_PRINT("qiot info: " fmt LOG_LINE_FEED_TYPE, ##args); \
     } while (0)
@@ -59,7 +59,7 @@ extern e_ble_qiot_log_level g_log_level;
 #ifndef ble_qiot_log_w
 #define ble_qiot_log_w(fmt, args...)                                                                 \
     do {                                                                                             \
-        if (g_log_level < BLE_QIOT_LOG_LEVEL_WARN)                                                   \
+        if (ll_log_level < BLE_QIOT_LOG_LEVEL_WARN)                                                   \
             break;                                                                                   \
         BLE_QIOT_LOG_PRINT("qiot warn(%s|%d): " fmt LOG_LINE_FEED_TYPE, __FILE__, __LINE__, ##args); \
     } while (0)
@@ -68,7 +68,7 @@ extern e_ble_qiot_log_level g_log_level;
 #ifndef ble_qiot_log_e
 #define ble_qiot_log_e(fmt, args...)                                                                \
     do {                                                                                            \
-        if (g_log_level < BLE_QIOT_LOG_LEVEL_ERR)                                                   \
+        if (ll_log_level < BLE_QIOT_LOG_LEVEL_ERR)                                                   \
             break;                                                                                  \
         BLE_QIOT_LOG_PRINT("qiot err(%s|%d): " fmt LOG_LINE_FEED_TYPE, __FILE__, __LINE__, ##args); \
     } while (0)
@@ -77,7 +77,7 @@ extern e_ble_qiot_log_level g_log_level;
 #ifndef ble_qiot_log
 #define ble_qiot_log(level, fmt, args...)                                                           \
     do {                                                                                            \
-        if (g_log_level < level)                                                                    \
+        if (ll_log_level < level)                                                                    \
             break;                                                                                  \
         BLE_QIOT_LOG_PRINT("qiot log(%s|%d): " fmt LOG_LINE_FEED_TYPE, __FILE__, __LINE__, ##args); \
     } while (0)

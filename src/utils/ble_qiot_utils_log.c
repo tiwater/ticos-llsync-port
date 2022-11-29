@@ -21,11 +21,11 @@ extern "C" {
 
 #define HEX_DUMP_BYTE_PER_LINE 16
 
-e_ble_qiot_log_level g_log_level = BLE_QIOT_LOG_LEVEL_INFO;
+e_ble_qiot_log_level ll_log_level = BLE_QIOT_LOG_LEVEL_INFO;
 
 void ble_qiot_set_log_level(e_ble_qiot_log_level level)
 {
-    g_log_level = level;
+    ll_log_level = level;
     return;
 }
 
@@ -35,7 +35,7 @@ void ble_qiot_log_hex(e_ble_qiot_log_level level, const char *hex_name, const ch
     char buf[HEX_DUMP_BYTE_PER_LINE * 5] = {0};
     int  line_count = 0, line = 0, byte = 0, rest = 0, start_byte = 0;
 
-    if (g_log_level < level)
+    if (ll_log_level < level)
         return;
 
     line_count = data_len / HEX_DUMP_BYTE_PER_LINE;
