@@ -161,7 +161,7 @@ uint16_t ble_get_user_data_mtu_size(e_system type)
     return 128;
 }
 
-uint8_t ble_ota_is_enable(const char *version)
+uint8_t ble_ota_is_enable(const char *version, uint32_t file_size, uint32_t file_crc)
 {
     ble_qiot_log_e("ota version: %s, enable ota", version);
     return BLE_OTA_ENABLE;

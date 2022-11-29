@@ -83,7 +83,7 @@ void llsync_connection_state_set(e_llsync_connection_state new_state)
     sg_llsync_connection_state = new_state;
 }
 
-bool llsync_is_connected(void)
+uint8_t llsync_is_connected(void)
 {
     return sg_llsync_connection_state == E_LLSYNC_CONNECTED;
 }
@@ -94,7 +94,7 @@ void ble_connection_state_set(e_ble_connection_state new_state)
     sg_ble_connection_state = new_state;
 }
 
-bool ble_is_connected(void)
+uint8_t ble_is_connected(void)
 {
     return sg_ble_connection_state == E_BLE_CONNECTED;
 }

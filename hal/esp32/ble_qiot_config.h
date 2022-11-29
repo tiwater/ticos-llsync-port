@@ -39,7 +39,7 @@ extern "C" {
 
 // the following definition will affect the stack that LLSync used，the minimum value tested is 2048 bytes
 // the max length of llsync event data, depends on the length of user data reported to Tencent Lianlian at a time
-#define BLE_QIOT_EVENT_MAX_SIZE (2048)
+#define BLE_QIOT_EVENT_MAX_SIZE (4096)
 // the minimum between BLE_QIOT_EVENT_MAX_SIZE and mtu
 #define BLE_QIOT_EVENT_BUF_SIZE (150)
 
